@@ -38,7 +38,7 @@ function init() {
     q.append(m, inp, p); c.append(badge, art, el('h3', '', f.name), el('p', 'muted', f.desc), q, add); $('#cards').append(c);
   });
   $('#nt').onchange = () => { $('#nw').hidden = !$('#nt').checked; renderPreview(); };
-  $('#note').oninput = () => { $('#cnt').textContent = Array.from($('#note').value).length + ' characters'; renderPreview(); };
+  $('#note').oninput = () => { $('#cnt').textContent = Array.from($('#note').value).length + ' / 300 characters'; renderPreview(); };
   $('#mk').onclick = () => {
     const a = items();
     if (!a.length) return toast('Add at least one flower first 🌹');
@@ -77,7 +77,7 @@ function renderPreview() {
 /* ---- QR modal ---- */
 function closeModal() { clearInterval(qrTimer); $('#modal').hidden = true; }
 function showQR(g) {
-  const b = $('#mb'), link = Store.link(g.id), q = el('div', 'qr'), rem = el('b', '', '');
+  const b = $('#mb'), link = Store.link(g), q = el('div', 'qr'), rem = el('b', '', '');
   b.replaceChildren();
   try { new QRCode(q, { text: link, width: 220, height: 220, colorDark: '#2b0022', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
   catch (e) { q.textContent = 'QR library failed to load (check your internet). Use the link below.'; }
@@ -93,7 +93,7 @@ function showQR(g) {
   if (navigator.share) { const s = el('button', 'btn', 'Share'); s.onclick = () => navigator.share({ title: "Shafin's Virtual Gift", text: 'A gift for you ❤️', url: link }).catch(() => {}); row.append(s); }
   row.append(x);
   b.append(el('h2', 'script', 'Gift created ✨'), el('p', '', 'Your gift is ready! Share this QR code with someone special. ❤️'), q, info, row,
-    el('small', 'muted', 'Demo mode: this link opens only in this browser. Cross-device sharing needs a backend.'));
+    el('small', 'muted', 'Anyone with this link can view the gift until it expires. Deleting your local copy does not revoke a shared link.'));
   $('#modal').hidden = false;
 }
 $('#modal').onclick = e => { if (e.target.id === 'modal') closeModal(); };
@@ -108,9 +108,9 @@ function renderGifts() {
     c.append(st, el('h3', '', 'Gift ' + g.id), el('p', '', fname(g.items)), el('p', 'muted', count(g.items) + ' flowers' + (g.note ? ' · with note' : '')),
       el('p', 'muted', 'Created: ' + when(g.createdAt)), el('p', 'muted', 'Expires: ' + when(g.expiresAt)));
     const r = el('div', 'btns'), pv = el('button', 'btn', 'Preview'), qr = el('button', 'btn', 'Show QR'), cp = el('button', 'btn', 'Copy link'), del = el('button', 'btn ghost', 'Delete');
-    pv.onclick = () => window.open(Store.link(g.id), '_blank');
+    pv.onclick = () => window.open(Store.link(g), '_blank');
     qr.onclick = () => left > 0 ? showQR(g) : toast('This gift has expired');
-    cp.onclick = () => copy(Store.link(g.id));
+    cp.onclick = () => copy(Store.link(g));
     del.onclick = () => { if (confirm('Delete this gift?')) { Store.remove(g.id); renderGifts(); } };
     r.append(pv, qr, cp, del); c.append(r); box.append(c);
   });

@@ -36,13 +36,13 @@
       <h2 class="h">Your gift <small id="tot"></small></h2>
       <div id="cart"></div>
       <label class="tg"><input type="checkbox" id="nt"> Add a personal note ❤️</label>
-      <div id="nw" hidden><textarea id="note" rows="5" placeholder="Write something special..."></textarea><small id="cnt" class="muted">0 characters</small></div>
+      <div id="nw" hidden><textarea id="note" rows="5" maxlength="300" placeholder="Write something special..."></textarea><small id="cnt" class="muted">0 / 300 characters</small></div>
       <button id="mk" class="btn big">Create &amp; Generate QR ❤️</button>
     </div>
     <div class="glass pad"><h2 class="h">Live preview</h2><div id="pv" class="pv"></div></div>
   </section>
   <section><h2 class="h">My Created Gifts</h2><div id="gifts" class="grid"></div></section>
-  <p class="foot">Demo mode: gifts live in this browser's LocalStorage, so QR links open only on this device. See README for the backend step.</p>
+  <p class="foot">Gift links work across devices and expire after 24 hours. Anyone with a link can view its gift; deleting your local copy does not revoke a shared link.</p>
 </main>
 
 <div id="modal" class="overlay" hidden><div class="glass mbox"><div id="mb"></div></div></div>
