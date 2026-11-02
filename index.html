@@ -1,0 +1,55 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>Shafin's Virtual Gift</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Great+Vibes&family=Hind+Siliguri:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head><body>
+<div id="fx"></div>
+
+<!-- LOGIN -->
+<section id="login" class="center">
+  <div id="lcard" class="glass lcard">
+    <div class="logo big">🌹</div>
+    <h1 class="script">Shafin's Virtual Gift</h1>
+    <p class="muted">Every flower carries a feeling.</p>
+    <form id="lf" autocomplete="off">
+      <input id="u" placeholder="Username" required aria-label="Username">
+      <div class="pw"><input id="p" type="password" placeholder="Password" required aria-label="Password">
+        <button type="button" id="eye" class="sq" aria-label="Show or hide password">👁</button></div>
+      <p id="err" class="err" hidden>That username or password isn't right. Please try again 💔</p>
+      <button class="btn big" type="submit">Enter ❤️</button>
+    </form>
+  </div>
+</section>
+
+<!-- DASHBOARD -->
+<main id="app" hidden>
+  <header class="top">
+    <div class="brand"><span class="logo">🌹</span><div><h1>Shafin's Virtual Gift</h1><small>Every flower carries a feeling.</small></div></div>
+    <div class="prof"><span class="av">K</span><span>ksshafin18</span><button id="out" class="btn ghost">Logout</button></div>
+  </header>
+  <section class="welcome"><h2 class="script">Welcome Back, Shafin ❤️</h2><p>Create something beautiful for someone special.</p></section>
+  <section><h2 class="h">Choose flowers</h2><div id="cards" class="grid"></div></section>
+  <section class="two">
+    <div class="glass pad">
+      <h2 class="h">Your gift <small id="tot"></small></h2>
+      <div id="cart"></div>
+      <label class="tg"><input type="checkbox" id="nt"> Add a personal note ❤️</label>
+      <div id="nw" hidden><textarea id="note" rows="5" placeholder="Write something special..."></textarea><small id="cnt" class="muted">0 characters</small></div>
+      <button id="mk" class="btn big">Create &amp; Generate QR ❤️</button>
+    </div>
+    <div class="glass pad"><h2 class="h">Live preview</h2><div id="pv" class="pv"></div></div>
+  </section>
+  <section><h2 class="h">My Created Gifts</h2><div id="gifts" class="grid"></div></section>
+  <p class="foot">Demo mode: gifts live in this browser's LocalStorage, so QR links open only on this device. See README for the backend step.</p>
+</main>
+
+<div id="modal" class="overlay" hidden><div class="glass mbox"><div id="mb"></div></div></div>
+<div id="toast" class="toast" hidden></div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
+<script src="storage.js"></script>
+<script src="flowers.js"></script>
+<script src="app.js"></script>
+</body></html>
