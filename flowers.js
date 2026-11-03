@@ -7,7 +7,8 @@ const Flowers = (() => {
     rose: { name: 'Roses', emoji: '🌹', desc: 'Deep love, whispered in velvet petals.' },
     sunflower: { name: 'Sunflowers', emoji: '🌻', desc: 'Pure joy that always turns toward you.' },
     lily: { name: 'Lilies', emoji: '🌸', desc: 'Graceful, tender and softly glowing.' },
-    kath: { name: 'Kath Golap (কাঠগোলাপ)', emoji: '🌷', desc: 'The sweet scent of home and memories.' }
+    kath: { name: 'Kath Golap (কাঠগোলাপ)', emoji: '🌷', desc: 'The sweet scent of home and memories.' },
+    letter: { name: 'Letter', emoji: '', desc: 'Send a personal letter in a sealed envelope.' }
   };
   const ring = (n, f, offset = 0) => Array.from({ length: n }, (_, i) => f(i * 360 / n + offset)).join('');
   let sceneId = 0;
@@ -71,16 +72,16 @@ const Flowers = (() => {
   }
 
   /* Pink envelope; clicking plays an open animation, then calls fn */
-  function envelope(fn) {
+  function envelope(fn, label = 'A little note for you', ariaLabel = 'Open the note') {
     const w = el('div', 'envwrap'), b = el('button', 'env');
-    b.type = 'button'; b.setAttribute('aria-label', 'Open the note');
+    b.type = 'button'; b.setAttribute('aria-label', ariaLabel);
     b.append(el('i', 'flap'), el('i', 'seal', '❤'));
     b.onclick = () => {
       if (document.querySelector('.note-overlay')) return;
       b.disabled = true; b.classList.add('open');
       setTimeout(() => { b.classList.remove('open'); b.disabled = false; fn(w); }, 650);
     };
-    w.append(b, el('small', '', 'A little note for you 💌'));
+    w.append(b, el('small', '', label));
     return w;
   }
   return { TYPES, scene, envelope };
@@ -88,10 +89,10 @@ const Flowers = (() => {
 
 /* Letter overlay with typewriter animation. Uses textContent only (no HTML injection). */
 const Letter = {
-  open(text, { onKeep = () => {}, onExpire = () => {}, onDismiss = () => {}, autoDismissMs = 8000 } = {}) {
+  open(text, { kind = 'note', onKeep = () => {}, onExpire = () => {}, onDismiss = () => {}, autoDismissMs = 8000 } = {}) {
     const o = el('div', 'overlay note-overlay'), paper = el('div', 'letter'), p = el('p', 'script');
     const prompt = el('small', 'note-prompt', 'Keep it, or let it fade away.');
-    const keep = el('button', 'btn keep-note', 'Keep the note');
+    const keep = el('button', 'btn keep-note', kind === 'letter' ? 'Keep the letter' : 'Keep the note');
     keep.type = 'button'; keep.hidden = true;
     paper.append(p, prompt, keep); o.append(paper); document.body.append(o);
     const chars = (window.Intl && Intl.Segmenter)

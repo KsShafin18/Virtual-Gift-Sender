@@ -17,8 +17,8 @@
       <input id="u" placeholder="Username" required aria-label="Username">
       <div class="pw"><input id="p" type="password" placeholder="Password" required aria-label="Password">
         <button type="button" id="eye" class="sq" aria-label="Show or hide password">👁</button></div>
-      <p id="err" class="err" hidden>That username or password isn't right. Please try again 💔</p>
-      <button class="btn big" type="submit">Enter ❤️</button>
+      <p id="err" class="err" hidden>That username or password isn't right. Please try again.</p>
+      <button class="btn big" type="submit">Enter</button>
     </form>
   </div>
 </section>
@@ -29,15 +29,16 @@
     <div class="brand"><span class="logo">🌹</span><div><h1>Shafin's Virtual Gift</h1><small>Every flower carries a feeling.</small></div></div>
     <div class="prof"><span class="av">K</span><span>ksshafin18</span><button id="out" class="btn ghost">Logout</button></div>
   </header>
-  <section class="welcome"><h2 class="script">Welcome Back, Shafin ❤️</h2><p>Create something beautiful for someone special.</p></section>
-  <section><h2 class="h">Choose flowers</h2><div id="cards" class="grid"></div></section>
+  <section class="welcome"><h2 class="script">Welcome Back, Shafin</h2><p>Create something beautiful for someone special.</p></section>
+  <section><h2 class="h">Choose gifts</h2><div id="cards" class="grid"></div></section>
   <section class="two">
     <div class="glass pad">
       <h2 class="h">Your gift <small id="tot"></small></h2>
       <div id="cart"></div>
-      <label class="tg"><input type="checkbox" id="nt"> Add a personal note ❤️</label>
+      <label class="tg" id="noteOption"><input type="checkbox" id="nt"> Add a personal note</label>
       <div id="nw" hidden><textarea id="note" rows="5" maxlength="300" placeholder="Write something special..."></textarea><small id="cnt" class="muted">0 / 300 characters</small></div>
-      <button id="mk" class="btn big">Create &amp; Generate QR ❤️</button>
+      <div id="letterWriter" hidden><label for="letterText">Add text</label><textarea id="letterText" rows="5" maxlength="300" placeholder="Write your letter..."></textarea><small id="letterCount" class="muted">0 / 300 characters</small></div>
+      <button id="mk" class="btn big">Create &amp; Generate QR</button>
     </div>
     <div class="glass pad"><h2 class="h">Live preview</h2><div id="pv" class="pv"></div></div>
   </section>

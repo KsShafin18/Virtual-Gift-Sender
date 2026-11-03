@@ -3,11 +3,14 @@ const Store = (() => {
   const G = 'svg_gifts', A = 'svg_auth', DAY = 24 * 36e5;
   const valid = g => {
     const types = typeof Flowers === 'undefined' ? null : Flowers.TYPES;
+    const hasLetter = !!g && Array.isArray(g.items) && g.items.some(i => i && i.type === 'letter');
     return !!g && typeof g.id === 'string' && /^[a-z0-9]{8}$/.test(g.id) &&
       Array.isArray(g.items) && g.items.length > 0 &&
       g.items.every(i => i && typeof i.type === 'string' && Number.isSafeInteger(i.qty) && i.qty > 0 &&
-        (!types || Object.prototype.hasOwnProperty.call(types, i.type))) &&
+        (!types || Object.prototype.hasOwnProperty.call(types, i.type)) && (i.type !== 'letter' || i.qty === 1)) &&
       typeof g.note === 'string' && g.note.length <= 300 &&
+      (g.letterText === undefined || (typeof g.letterText === 'string' && g.letterText.length <= 300)) &&
+      (hasLetter ? typeof g.letterText === 'string' && g.letterText.trim().length > 0 && g.note === '' : true) &&
       Number.isFinite(g.createdAt) && Number.isFinite(g.expiresAt) &&
       g.expiresAt > g.createdAt && g.expiresAt - g.createdAt <= DAY;
   };
@@ -38,7 +41,13 @@ const Store = (() => {
   return {
     all: read,
     get: id => read().find(g => g.id === id) || null,
-    create(items, note) { const now = Date.now(), g = { id: uid(), items, note: note || '', createdAt: now, expiresAt: now + DAY }; write([g, ...read()]); return g; },
+    create(items, note, letterText = '') {
+      const now = Date.now(), hasLetter = items.some(i => i.type === 'letter');
+      const g = { id: uid(), items, note: hasLetter ? '' : note || '', letterText: hasLetter ? letterText.trim() : '', createdAt: now, expiresAt: now + DAY };
+      if (!valid(g)) throw new Error('Gift contents are invalid.');
+      write([g, ...read()]);
+      return g;
+    },
     remove: id => write(read().filter(g => g.id !== id)),
     cleanup: () => write(read().filter(g => g.expiresAt > Date.now())), // run by dashboard only
     fromLink: decode,
