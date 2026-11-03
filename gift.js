@@ -12,10 +12,12 @@
     return msg('Invalid Gift Link', 'This link contains unsupported gift items. Ask the sender to create a new gift link.');
   const letterGift = g.items.some(item => item.type === 'letter');
   $('#flowers').innerHTML = Flowers.scene(g.items.filter(item => item.type !== 'letter'));
-  const note = (g.note || '').trim(), go = $('#go');
-  go.onclick = () => {
+  const note = (g.note || '').trim(), go = $('#go'), box = $('.box');
+  const openGift = () => {
+    if (sg.classList.contains('revealing')) return;
     if (Date.now() >= g.expiresAt) return location.reload();
     go.classList.add('gone');
+    box.classList.add('disabled');
     sg.classList.add('revealing');
     const S = (c, t) => setTimeout(() => sg.classList.add(c), t);
     S('untie', 200); S('open', 1100); S('rise', 1800); S('center', 3800);
@@ -32,4 +34,12 @@
       })));
     }, 4600);
   };
+  go.addEventListener('click', openGift);
+  box.addEventListener('click', openGift);
+  box.addEventListener('keydown', e => {
+    if (e.key === 'Enter' || e.key === ' ') {
+      e.preventDefault();
+      openGift();
+    }
+  });
 })();
