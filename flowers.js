@@ -42,33 +42,55 @@ const Flowers = (() => {
 
   /* Build the arrangement as an SVG string (only our own markup, never user text).
      Rule: single type with qty < 4 -> loose stems. qty >= 4, or several types -> wrapped bouquet. */
-  function scene(items, focus = false) {
+  function scene(items, focus = false, container = '') {
     const L = items.filter(i => TYPES[i.type] && i.qty > 0);
     if (!L.length) return '';
     const id = ++sceneId;
-    const wrap = L.length > 1 || L[0].qty >= 4, CAP = 28;
+    const wrap = !container && (L.length > 1 || L[0].qty >= 4), CAP = 28;
     const left = L.map(i => ({ t: i.type, n: i.qty })), total = left.reduce((s, x) => s + x.n, 0), H = [];
     while (H.length < Math.min(total, CAP)) left.forEach(x => { if (x.n > 0 && H.length < CAP) { H.push(x.t); x.n--; } });
-    const n = H.length, k = wrap ? (n <= 3 ? 1.1 : Math.max(.5, 1.1 - n * .03)) : .95;
+    const n = H.length, vessel = container === 'bottle' || container === 'vase';
+    const k = wrap ? (n <= 3 ? 1.1 : Math.max(.5, 1.1 - n * .03)) : vessel ? (n <= 3 ? .82 : n <= 8 ? .72 : .6) : .95;
     const P = H.map((t, i) => {
-      let a, bx, len, by = wrap ? 395 : 400; const tier = i % 3;
+      let a, bx, len, by = wrap ? 395 : container === 'pot' ? 340 : 400; const tier = i % 3;
       if (wrap) { a = n === 1 ? 0 : (i / (n - 1) - .5) * Math.min(80, 24 + n * 6); bx = 200; len = 150 + tier * 40; }
+      else if (vessel) {
+        bx = 200 + (i % 3 - 1) * 4;
+        const targetX = 200 + (n === 1 ? 0 : (i / (n - 1) - .5) * Math.min(176, 100 + n * 3));
+        const targetY = 176 + tier * 22, dx = targetX - bx, dy = by - targetY;
+        a = Math.atan2(dx, dy) * 180 / Math.PI; len = Math.hypot(dx, dy);
+      }
+      else if (container === 'pot') {
+        bx = 200 + (i % 3 - 1) * 12;
+        const targetX = 200 + (n === 1 ? 0 : (i / (n - 1) - .5) * Math.min(150, 90 + n * 2));
+        const targetY = 176 + tier * 24, dx = targetX - bx, dy = by - targetY;
+        a = Math.atan2(dx, dy) * 180 / Math.PI; len = Math.hypot(dx, dy);
+      }
       else { const o = i - (n - 1) / 2; bx = 200 + o * 40; a = o * 11; len = 210; }
       const r = a * Math.PI / 180, tx = bx + Math.sin(r) * len, ty = by - Math.cos(r) * len;
-      return { t, i, bx, by, tx, ty, a, tier, cx: bx + Math.sin(r) * len * .25, cy: by - Math.cos(r) * len * .6 };
+      return { t, i, bx, by, tx, ty, a, tier, vessel, cx: vessel ? 200 : bx + Math.sin(r) * len * .25, cy: vessel ? 310 : by - Math.cos(r) * len * .6 };
     });
+    const bottleShape = 'M183 276H217V321C217 335 248 348 260 371C270 390 260 425 245 434H155C140 425 130 390 140 371C152 348 183 335 183 321Z';
+    const vaseShape = 'M168 287Q200 276 232 287L224 300H216V322C216 341 242 352 255 375C269 400 255 426 238 435Q200 446 162 435C145 426 131 400 145 375C158 352 184 341 184 322V300H176Z';
+    const vesselBack = container === 'bottle' ? `<path d="${bottleShape}" fill="#b9eced" fill-opacity=".2" stroke="#e4ffff" stroke-opacity=".72" stroke-width="3"/><path d="M188 281H212V322H188Z" fill="#b9eced" fill-opacity=".2"/>` : container === 'pot' ? '<ellipse cx="200" cy="337" rx="64" ry="13" fill="#492617" stroke="#efbd7e" stroke-width="3"/>' : container === 'vase' ? `<path d="${vaseShape}" fill="#6ec8b8" fill-opacity=".18" stroke="#f1d59a" stroke-opacity=".8" stroke-width="2"/>` : '';
     const stems = P.map(p => {
       const u = .45, m = (1 - u) * (1 - u), w = 2 * (1 - u) * u, v = u * u;
       const lx = m * p.bx + w * p.cx + v * p.tx, ly = m * p.by + w * p.cy + v * p.ty;
       const angle = p.i % 2 ? -35 : 35;
-      return `<g class="sprig" style="--sway-delay:${p.i * -.24}s"><path d="M${p.bx} ${p.by}Q${p.cx} ${p.cy} ${p.tx} ${p.ty}" stroke="#174c32" stroke-width="5.5" fill="none" stroke-linecap="round"/><path d="M${p.bx - 1} ${p.by}Q${p.cx - 1} ${p.cy} ${p.tx - 1} ${p.ty}" stroke="#68ae62" stroke-width="1.5" fill="none" stroke-linecap="round"/><g transform="translate(${lx} ${ly}) rotate(${angle})"><path class="leaf" d="M0 0C8-11 24-13 34-2C26 9 10 11 0 0Z" fill="url(#leaf-${id})" stroke="#b3d77a" stroke-opacity=".48" stroke-width=".8"/><path d="M1 0C12-2 23-3 32-2M11-2L14-7M19-2L23-8M12 0L15 5M21-1L25 3" fill="none" stroke="#c4e495" stroke-opacity=".72" stroke-width=".8"/></g><path d="M${p.bx + 2} ${p.by - 28}l-6-7m7 7 6-7" stroke="#498354" stroke-width="1.5" stroke-linecap="round"/></g>`;
+      const d = p.vessel ? `M${p.bx} ${p.by}Q${p.bx} 350 200 310Q200 278 ${p.tx} ${p.ty}` : `M${p.bx} ${p.by}Q${p.cx} ${p.cy} ${p.tx} ${p.ty}`;
+      const leafX = p.vessel ? 200 + (p.i % 2 ? 8 : -8) : lx, leafY = p.vessel ? 352 : ly;
+      return `<g class="sprig" style="--sway-delay:${p.i * -.24}s"><path d="${d}" stroke="#174c32" stroke-width="5.5" fill="none" stroke-linecap="round"/><path d="${d}" transform="translate(-1 0)" stroke="#68ae62" stroke-width="1.5" fill="none" stroke-linecap="round"/><g transform="translate(${leafX} ${leafY}) rotate(${angle})"><path class="leaf" d="M0 0C8-11 24-13 34-2C26 9 10 11 0 0Z" fill="url(#leaf-${id})" stroke="#b3d77a" stroke-opacity=".48" stroke-width=".8"/><path d="M1 0C12-2 23-3 32-2M11-2L14-7M19-2L23-8M12 0L15 5M21-1L25 3" fill="none" stroke="#c4e495" stroke-opacity=".72" stroke-width=".8"/></g><path d="M${p.bx + 2} ${p.by - 28}l-6-7m7 7 6-7" stroke="#498354" stroke-width="1.5" stroke-linecap="round"/></g>`;
     }).join('');
+    const vesselFront = container === 'bottle' ? `<path d="${bottleShape}" fill="url(#bottle-gloss-${id})" fill-opacity=".26" stroke="#efffff" stroke-opacity=".68" stroke-width="2"/><path d="M159 377C154 394 159 414 168 421" fill="none" stroke="#fff" stroke-opacity=".62" stroke-width="5" stroke-linecap="round"/><path d="M183 276H217V321H183Z" fill="none" stroke="#e4ffff" stroke-opacity=".55" stroke-width="2"/>` : container === 'pot' ? `<path d="M140 340H260L246 423Q200 445 154 423Z" fill="url(#pot-glaze-${id})" stroke="#ffd6a2" stroke-width="3"/><path d="M140 340H260L255 355H145Z" fill="#df9b59" stroke="#ffe0b7" stroke-width="2"/><path d="M158 365L168 418M242 365L232 418" stroke="#fff0cc" stroke-opacity=".35" stroke-width="3"/>` : container === 'vase' ? `<path d="${vaseShape}" fill="url(#vase-gloss-${id})" fill-opacity=".64" stroke="#f1d59a" stroke-opacity=".92" stroke-width="2.5"/><path d="M168 287Q200 300 232 287M176 300Q200 309 224 300M184 323Q200 329 216 323" fill="none" stroke="#f5d894" stroke-opacity=".9" stroke-width="2"/><path d="M200 350C178 363 221 374 200 388C180 401 200 410 200 425M195 362C183 352 177 359 184 367C190 372 196 367 195 362ZM205 378C217 368 224 376 216 384C210 389 204 384 205 378ZM195 397C183 388 177 395 184 403C190 408 196 403 195 397ZM205 414C217 405 224 412 216 420C210 425 204 420 205 414Z" fill="none" stroke="#f6d996" stroke-opacity=".82" stroke-width="2" stroke-linecap="round"/><circle cx="200" cy="388" r="3.5" fill="#f7dda1"/><path d="M159 407Q200 428 241 407" fill="none" stroke="#f5d894" stroke-opacity=".65" stroke-width="1.5"/>` : '';
     const heads = [...P].sort((p, q) => q.tier - p.tier).map(p =>
-      `<g transform="translate(${p.tx} ${p.ty}) rotate(${p.a}) scale(${k})"><g class="bloom" style="--sway-delay:${p.i * -.31}s">${head(p.t, id)}</g></g>`).join('');
+      `<g class="flower-touch" data-flower="${p.t}" transform="translate(${p.tx} ${p.ty}) rotate(${p.a}) scale(${k})"><g class="bloom" style="--sway-delay:${p.i * -.31}s">${head(p.t, id)}</g></g>`).join('');
     const cone = wrap ? `<path d="M118 290L282 290L224 428L176 428Z" fill="url(#wrap-${id})" opacity=".96"/><path d="M118 290L200 360L282 290" fill="#fff1f7" opacity=".24"/><path d="M133 296L185 420M267 296L215 420M200 300V428" stroke="#9e174f" stroke-opacity=".4" stroke-width="2"/><path d="M122 291L200 359L278 291" fill="none" stroke="#ffe3ef" stroke-opacity=".8" stroke-width="3"/><g transform="translate(200 322)"><path d="M0 0C-23-23-38-13-34 4C-30 17-11 11 0 0C23-23 38-13 34 4C30 17 11 11 0 0Z" fill="#ed2f83" stroke="#ffd7ec" stroke-width="1.5"/><circle r="7" fill="#ffb4d5"/></g>` : '';
-    const more = total > CAP ? `<text x="200" y="446" fill="#ffd7ec" font-size="14" text-anchor="middle">+${total - CAP} more in this bouquet</text>` : '';
+    const more = total > CAP ? `<text x="200" y="${container ? 418 : 446}" fill="#ffd7ec" font-size="14" text-anchor="middle">+${total - CAP} more ${container ? 'inside' : 'in this bouquet'}</text>` : '';
     const viewBox = focus && !wrap ? '85 95 230 320' : '0 0 400 450';
-    return `<svg class="arrangement" viewBox="${viewBox}" role="img" aria-label="Flower arrangement">${definitions(id)}${stems}${cone}${heads}${more}</svg>`;
+    const vesselDefs = container === 'bottle' ? `<linearGradient id="bottle-gloss-${id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e8ffff" stop-opacity=".18"/><stop offset=".22" stop-color="#fff" stop-opacity=".5"/><stop offset=".52" stop-color="#80dbe2" stop-opacity=".12"/><stop offset=".82" stop-color="#fff" stop-opacity=".35"/><stop offset="1" stop-color="#68b9c9" stop-opacity=".22"/></linearGradient>` : container === 'vase' ? `<linearGradient id="vase-gloss-${id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#b9f4e3" stop-opacity=".78"/><stop offset=".2" stop-color="#38a99c" stop-opacity=".68"/><stop offset=".44" stop-color="#d8fff0" stop-opacity=".78"/><stop offset=".7" stop-color="#20877f" stop-opacity=".72"/><stop offset=".88" stop-color="#b9f4e3" stop-opacity=".84"/><stop offset="1" stop-color="#58b8a9" stop-opacity=".7"/></linearGradient>` : container === 'pot' ? `<linearGradient id="pot-glaze-${id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#f2a55d"/><stop offset=".45" stop-color="#bc5839"/><stop offset="1" stop-color="#753329"/></linearGradient>` : '';
+    const gradients = vesselDefs;
+    const aria = container ? `${container} flower arrangement` : 'Flower arrangement';
+    return `<svg class="arrangement" viewBox="${viewBox}" role="img" aria-label="${aria}">${definitions(id)}${gradients}${vesselBack}${stems}${cone}${vesselFront}${heads}${more}</svg>`;
   }
 
   /* Pink envelope; clicking plays an open animation, then calls fn */

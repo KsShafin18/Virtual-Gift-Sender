@@ -1,6 +1,10 @@
 /* Login, dashboard, cart, preview, QR modal, gift list */
 const cart = {}, pick = {}; let ready = false, qrTimer = null;
-const fmt = ms => { if (ms <= 0) return 'Expired'; const m = Math.floor(ms / 6e4); return Math.floor(m / 60) + 'h ' + m % 60 + 'm left'; };
+const fmt = ms => {
+  if (ms <= 0) return 'Expired';
+  const s = Math.ceil(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60;
+  return String(h).padStart(2, '0') + ':' + String(m).padStart(2, '0') + ':' + String(r).padStart(2, '0') + ' left';
+};
 const when = t => new Date(t).toLocaleString();
 const items = () => Object.keys(cart).map(k => ({ type: k, qty: cart[k] }));
 const count = a => a.reduce((s, i) => s + i.qty, 0);
@@ -10,6 +14,13 @@ const noteText = () => !hasLetter() && $('#nt').checked ? $('#note').value.trim(
 const letterText = () => hasLetter() ? $('#letterText').value.trim() : '';
 function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2200); }
 async function copy(t) { try { await navigator.clipboard.writeText(t); toast('Link copied'); } catch (e) { prompt('Copy this link:', t); } }
+function updateGiftCountdowns() {
+  document.querySelectorAll('[data-expires-at]').forEach(label => {
+    const remaining = Number(label.dataset.expiresAt) - Date.now();
+    label.textContent = fmt(remaining);
+    label.classList.toggle('dead', remaining <= 0);
+  });
+}
 
 /* ---- Auth ---- */
 function route() {
@@ -62,9 +73,13 @@ function init() {
     const a = items();
     if (!a.length) return toast('Add at least one gift first');
     if (hasLetter() && !letterText()) return toast('Add text to your letter first');
-    const g = Store.create(a, noteText(), letterText()); renderGifts(); showQR(g);
+    const recipient = $('#recipient').value.trim();
+    const g = Store.create(a, noteText(), letterText(), recipient);
+    $('#recipient').value = '';
+    renderGifts(); showQR(g);
   };
   setInterval(() => { if (Store.isIn()) renderGifts(); }, 30000);
+  setInterval(() => { if (Store.isIn()) updateGiftCountdowns(); }, 1000);
 }
 
 /* ---- Cart + preview ---- */
@@ -115,10 +130,10 @@ function showQR(g) {
   try { new QRCode(q, { text: link, width: 220, height: 220, colorDark: '#2b0022', colorLight: '#ffffff', correctLevel: QRCode.CorrectLevel.M }); }
   catch (e) { q.textContent = 'QR library failed to load (check your internet). Use the link below.'; }
   const info = el('div', 'info');
-  [['Gift ID', g.id], ['Created', when(g.createdAt)], ['Expires', when(g.expiresAt)]].forEach(r => info.append(el('p', '', r[0] + ': ' + r[1])));
+  [['Gift ID', g.id], ...(g.recipient ? [['For', g.recipient]] : []), ['Created', when(g.createdAt)], ['Expires', when(g.expiresAt)]].forEach(r => info.append(el('p', '', r[0] + ': ' + r[1])));
   const p = el('p', '', 'Remaining: '); p.append(rem); info.append(p);
   const tick = () => { rem.textContent = fmt(g.expiresAt - Date.now()); }; tick();
-  clearInterval(qrTimer); qrTimer = setInterval(tick, 30000);
+  clearInterval(qrTimer); qrTimer = setInterval(tick, 1000);
   const row = el('div', 'btns'), c = el('button', 'btn', 'Copy gift link'), d = el('button', 'btn', 'Download QR'), x = el('button', 'btn ghost', 'Close');
   c.onclick = () => copy(link);
   d.onclick = () => { const cv = q.querySelector('canvas'); if (!cv) return toast('QR not available'); const a = el('a'); a.href = cv.toDataURL('image/png'); a.download = 'gift-' + g.id + '.png'; a.click(); };
@@ -138,8 +153,11 @@ function renderGifts() {
   all.forEach(g => {
     const left = g.expiresAt - Date.now(), c = el('article', 'card glass gcard');
     const st = el('span', 'pill' + (left <= 0 ? ' dead' : ''), fmt(left));
-    c.append(st, el('h3', '', 'Gift ' + g.id), el('p', '', fname(g.items)), el('p', 'muted', count(g.items) + ' gift items' + (g.note ? ' · with note' : '')),
+    c.append(st, el('h3', '', 'Gift ' + g.id),
+      ...(g.recipient ? [el('p', 'recipient-name', 'For: ' + g.recipient)] : []),
+      el('p', '', fname(g.items)), el('p', 'muted', count(g.items) + ' gift items' + (g.note ? ' · with note' : '')),
       el('p', 'muted', 'Created: ' + when(g.createdAt)), el('p', 'muted', 'Expires: ' + when(g.expiresAt)));
+    st.dataset.expiresAt = String(g.expiresAt);
     const r = el('div', 'btns'), pv = el('button', 'btn', 'Preview'), qr = el('button', 'btn', 'Show QR'), cp = el('button', 'btn', 'Copy link'), del = el('button', 'btn ghost', 'Delete');
     pv.onclick = () => window.open(Store.link(g), '_blank');
     qr.onclick = () => left > 0 ? showQR(g) : toast('This gift has expired');

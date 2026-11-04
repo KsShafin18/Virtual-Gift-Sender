@@ -8,6 +8,9 @@ body.dim #fx{filter:blur(4px) brightness(.55)}
 .gwrap{position:relative;width:min(92vw,420px);height:min(56vh,440px);margin:10px auto}
 .flowers{position:absolute;inset:0;z-index:1;opacity:0;pointer-events:none;transform-origin:50% 100%;transform:translateY(38%) scale(.35);transition:transform 2s ease,opacity 1s;filter:drop-shadow(0 0 16px rgba(255,47,146,.5))}
 .flowers svg{width:100%;height:100%}
+.flowers.interactive{pointer-events:auto}
+.flowers.interactive .flower-touch{cursor:pointer}
+.flowers.interactive .flower-touch:focus-visible .bloom{filter:drop-shadow(0 0 12px rgba(255,215,236,.9))}
 .box{position:absolute;left:50%;bottom:0;width:150px;height:116px;margin-left:-75px;z-index:2;cursor:pointer;touch-action:manipulation;transition:opacity 1.2s,transform 1.2s}
 .box:focus-visible{outline:2px solid var(--lp);outline-offset:10px;border-radius:12px}
 .box.disabled{pointer-events:none}
@@ -27,8 +30,22 @@ body.dim #fx{filter:blur(4px) brightness(.55)}
 .center .box{opacity:0;transform:translateY(50px)}
 .float .flowers{animation:bob 5s ease-in-out infinite}
 @keyframes bob{0%,100%{transform:translateY(-4%) scale(1.1)}50%{transform:translateY(-7%) scale(1.1)}}
+.flower-manager{position:relative;z-index:2;display:flex;align-items:center;justify-content:center;width:min(92vw,390px);min-height:54px;padding:8px 14px;border:1px solid rgba(255,215,236,.28);border-radius:12px;background:rgba(35,12,30,.76);box-shadow:0 10px 35px rgba(0,0,0,.24);text-align:center;animation:manager-in .55s ease both}
+.options-toggle{display:flex;align-items:center;gap:8px;min-height:40px;padding:6px 13px;border:1px solid rgba(255,158,207,.5);border-radius:8px;color:var(--tx);background:#34142d;font:500 .9rem Poppins,sans-serif;cursor:pointer;transition:background .2s,border-color .2s}
+.options-toggle:hover,.options-toggle[aria-expanded=true]{border-color:var(--lp);background:#552044}
+.options-toggle span{font-size:1.15rem;line-height:1}
+.flower-choices{position:absolute;top:calc(100% + 8px);left:50%;z-index:5;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px;width:min(88vw,340px);padding:9px;transform:translateX(-50%);border:1px solid rgba(255,215,236,.28);border-radius:10px;background:rgba(35,12,30,.97);box-shadow:0 12px 32px rgba(0,0,0,.4);animation:choices-in .18s ease both}
+.flower-choice{min-height:42px;padding:8px 10px;border:1px solid rgba(255,158,207,.3);border-radius:7px;color:var(--tx);background:rgba(255,255,255,.04);font:500 .82rem Poppins,sans-serif;cursor:pointer;transition:background .2s,border-color .2s}
+.flower-choice:hover,.flower-choice[aria-pressed=true]{border-color:var(--lp);background:rgba(255,47,146,.24)}
+.flower-manager p{position:absolute;top:calc(100% + 6px);left:0;width:100%;font-size:.76rem;opacity:.76;text-align:center}
+.flower-manager.processing .options-toggle{pointer-events:none;opacity:.65}
+.flowers.switching{opacity:0!important;transition:opacity .18s ease,transform .18s ease}
+.flowers.discarding{animation:throw-away .65s ease-in forwards}
+@keyframes manager-in{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@keyframes choices-in{from{opacity:0;transform:translate(-50%,8px)}to{opacity:1;transform:translate(-50%,0)}}
+@keyframes throw-away{to{opacity:0;transform:translateY(35px) scale(.5) rotate(8deg);filter:blur(4px)}}
 #go{animation:pulse 2s infinite;transition:opacity .6s}
 #go.gone{opacity:0;pointer-events:none;animation:none}
 .credit{position:fixed;left:14px;bottom:10px;z-index:2;font-size:.7rem;opacity:.65}
 @keyframes pulse{50%{box-shadow:0 0 40px var(--pk)}}
-@media(max-width:480px){.envwrap{right:0}.env{width:80px;height:56px}}
+@media(max-width:480px){.envwrap{right:0}.env{width:80px;height:56px}.flower-manager{padding:7px 10px}.flower-choices{width:min(88vw,320px)}}
