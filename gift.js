@@ -8,6 +8,8 @@
   if (!g) return msg(hasToken ? 'Invalid Gift Link' : 'Gift Not Found',
     hasToken ? 'This link is incomplete or invalid. Ask the sender to create a new gift link.' : 'This gift may have been removed or the link is incorrect.');
   if (Date.now() >= g.expiresAt) return msg('This gift has expired', 'This special gift is no longer available.');
+  const recipient = (g.recipient || '').trim();
+  $('#gardenCredit').textContent = `A little garden, made just for ${recipient || 'you'}.`;
   if (!g.items.every(item => Object.prototype.hasOwnProperty.call(Flowers.TYPES, item.type)))
     return msg('Invalid Gift Link', 'This link contains unsupported gift items. Ask the sender to create a new gift link.');
   const letterGift = g.items.some(item => item.type === 'letter');
@@ -47,7 +49,7 @@
     if (flowerArt.classList.contains('interactive')) enableFlowerPlay();
     const place = { bottle: 'bottle', pot: 'Plant Flower', vase: 'vase' }[arrangement.container];
     flowerStatus.textContent = total
-      ? place ? `${total} ${total === 1 ? 'flower' : 'flowers'} arranged in your ${place}.` : 'Your flowers are in their original bouquet.'
+      ? place ? `${total} ${total === 1 ? 'flower' : 'flowers'} arranged in your ${place}.` : ''
       : 'Your flowers have been thrown away.';
   };
   syncOptions();
