@@ -1,5 +1,14 @@
 /* Recipient page: checks existence + expiry on every load, then runs the reveal. */
 (function () {
+  Flowers.loadModels().then(start).catch(error => {
+    console.error('Flower models could not be initialized.', error);
+    const stage = $('#stage'), state = $('#state');
+    stage.hidden = true;
+    state.hidden = false;
+    state.querySelector('h1').textContent = 'Flower Models Unavailable';
+    state.querySelector('p').textContent = `This gift could not be displayed because its flower artwork failed to load. ${error.message}`;
+  });
+  function start() {
   const params = new URLSearchParams(location.search), hasToken = params.has('gift');
   const token = params.get('gift') || '', id = params.get('id') || '';
   const sg = $('#stage'), st = $('#state'); Fx.start(); Store.cleanupReceiver();
@@ -143,4 +152,5 @@
       openGift();
     }
   });
+  }
 })();

@@ -1,5 +1,5 @@
 /* Login, dashboard, cart, preview, QR modal, gift list */
-const cart = {}, pick = {}; let ready = false, qrTimer = null;
+const cart = Object.create(null), pick = Object.create(null); let ready = false, qrTimer = null;
 const fmt = ms => {
   if (ms <= 0) return 'Expired';
   const s = Math.ceil(ms / 1000), h = Math.floor(s / 3600), m = Math.floor(s % 3600 / 60), r = s % 60;
@@ -167,4 +167,12 @@ function renderGifts() {
   });
 }
 
-Fx.start(); route();
+Fx.start();
+Flowers.loadModels().then(route).catch(error => {
+  console.error('Flower models could not be initialized.', error);
+  $('#login').hidden = true;
+  $('#app').hidden = true;
+  const notice = $('#startupError');
+  notice.hidden = false;
+  notice.querySelector('p').textContent = `Flower artwork could not be loaded. ${error.message}`;
+});

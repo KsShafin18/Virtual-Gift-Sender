@@ -1,8 +1,16 @@
 # Shafin's Virtual Gift
 
 Run locally (QR/Web Share need HTTP, not `file://`): `python -m http.server 8000`, then open
-http://localhost:8000. The site is static and can be deployed directly to Vercel; no build command or
-serverless function is required.
+http://localhost:8000. The site is static; Vercel's build command only generates the flower catalog,
+and no serverless function is required.
+
+## Flower artwork models
+
+Replaceable flower models live in [models/flowers_Model/](./models/flowers_Model/). See its
+[README](./models/flowers_Model/README.md) for the HTML/SVG format, a Claude prompt, and the
+replace-or-add workflow. Existing model files can be replaced in place; new `.html` models are
+discovered automatically by the local HTTP server. Vercel regenerates the model catalog during
+deployment. For another static host, run `node tools/build-flower-catalog.js` before deployment.
 
 
 

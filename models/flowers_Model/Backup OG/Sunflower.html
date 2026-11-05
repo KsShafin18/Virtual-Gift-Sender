@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="flower-id" content="sunflower">
+  <meta name="flower-name" content="Sunflowers">
+  <meta name="flower-emoji" content="🌻">
+  <meta name="flower-description" content="Pure joy that always turns toward you.">
+  <title>Sunflower model</title>
+  <style>body{margin:0;min-height:100vh;display:grid;place-items:center;background:#190d19;color:#fff;font:16px system-ui}main{text-align:center}#preview{width:min(70vw,320px);height:min(70vw,320px)}#preview svg{width:100%;height:100%}</style>
+</head>
+<body>
+  <main><div id="preview" aria-label="Sunflower model preview"></div><p>Sunflower · reusable flower model</p></main>
+  <template id="flower-art">
+    <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100">
+      <defs>
+        <linearGradient id="sunPetal" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#fff59a"/><stop offset=".48" stop-color="#ffca28"/><stop offset="1" stop-color="#e87913"/></linearGradient>
+        <radialGradient id="sunCore" cx="34%" cy="28%"><stop stop-color="#9a5c2a"/><stop offset=".48" stop-color="#492719"/><stop offset="1" stop-color="#21120d"/></radialGradient>
+      </defs>
+      <g fill="url(#sunPetal)" stroke="#d27a13" stroke-width=".75">
+        <ellipse cx="50" cy="18" rx="6" ry="19"/><ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(30 50 50)"/>
+        <ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(60 50 50)"/><ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(90 50 50)"/>
+        <ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(120 50 50)"/><ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(150 50 50)"/>
+        <ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(180 50 50)"/><ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(210 50 50)"/>
+        <ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(240 50 50)"/><ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(270 50 50)"/>
+        <ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(300 50 50)"/><ellipse cx="50" cy="18" rx="6" ry="19" transform="rotate(330 50 50)"/>
+      </g>
+      <circle cx="50" cy="50" r="23" fill="url(#sunCore)" stroke="#d4a15b" stroke-width="1.4"/>
+      <g fill="#d49a49">
+        <circle cx="43" cy="42" r="1.5"/><circle cx="52" cy="40" r="1.4"/><circle cx="59" cy="46" r="1.6"/>
+        <circle cx="40" cy="51" r="1.4"/><circle cx="48" cy="55" r="1.7"/><circle cx="58" cy="56" r="1.5"/>
+        <circle cx="45" cy="62" r="1.3"/><circle cx="55" cy="63" r="1.4"/><circle cx="63" cy="52" r="1.2"/>
+      </g>
+      <circle cx="50" cy="50" r="15" fill="none" stroke="#28150e" stroke-width="1.2"/>
+    </svg>
+  </template>
+  <script>document.querySelector('#preview').replaceChildren(document.querySelector('#flower-art').content.cloneNode(true));</script>
+</body>
+</html>

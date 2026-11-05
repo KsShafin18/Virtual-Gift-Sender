@@ -12,6 +12,86 @@ const Flowers = (() => {
   };
   const ring = (n, f, offset = 0) => Array.from({ length: n }, (_, i) => f(i * 360 / n + offset)).join('');
   let sceneId = 0;
+  const models = new Map();
+  const modelFolder = 'models/flowers_Model/';
+
+  function cleanModelSVG(svg, file) {
+    const clean = svg.cloneNode(true);
+    clean.querySelectorAll('script,foreignObject,iframe,object,embed,image,style,animate,animateMotion,animateTransform,set')
+      .forEach(node => node.remove());
+    [clean, ...clean.querySelectorAll('*')].forEach(node => [...node.attributes].forEach(attribute => {
+      const key = attribute.name.toLowerCase(), value = attribute.value.trim();
+      const unsafeURL = /url\s*\(\s*(['"]?)(?!#)/i.test(value);
+      if (key.startsWith('on') ||
+        (key === 'href' || key === 'xlink:href') && !value.startsWith('#') ||
+        key === 'style' && (/@import|expression\s*\(|javascript:/i.test(value) || unsafeURL) ||
+        ['fill', 'stroke', 'filter', 'clip-path', 'mask', 'marker-start', 'marker-mid', 'marker-end'].includes(key) && unsafeURL) {
+        node.removeAttribute(attribute.name);
+      }
+    }));
+    const viewBox = clean.getAttribute('viewBox') || '';
+    const values = viewBox.trim().split(/\s+/).map(Number);
+    if (values.length !== 4 || !values.every(Number.isFinite) || values[2] <= 0 || values[3] <= 0)
+      throw new Error(`Flower model "${file}" must have a valid four-number SVG viewBox.`);
+    return clean;
+  }
+
+  async function loadModels() {
+    let files = [];
+    try {
+      const response = await fetch(modelFolder, { cache: 'no-store' });
+      if (response.ok) {
+        const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+        files = [...page.querySelectorAll('a[href]')].map(link => {
+          const url = new URL(link.getAttribute('href'), new URL(modelFolder, location.href));
+          return url.origin === location.origin && url.pathname.startsWith(new URL(modelFolder, location.href).pathname)
+            ? decodeURIComponent(url.pathname.slice(new URL(modelFolder, location.href).pathname.length)) : '';
+        }).filter(file => /^[A-Za-z0-9][A-Za-z0-9_-]*\.html$/i.test(file));
+      }
+    } catch (error) {
+      console.warn('Flower model directory listing is unavailable; trying the generated catalog.', error);
+    }
+
+    if (!files.length) {
+      const response = await fetch(modelFolder + 'manifest.json', { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Flower model catalog could not be loaded (${response.status}).`);
+      const catalog = await response.json();
+      if (!Array.isArray(catalog)) throw new Error('Flower model catalog has an invalid format.');
+      files = catalog.map(entry => {
+        if (!entry || typeof entry.file !== 'string' || !/^[A-Za-z0-9][A-Za-z0-9_-]*\.html$/i.test(entry.file))
+          throw new Error('Flower model catalog contains an invalid file entry.');
+        return `${entry.file}?v=${encodeURIComponent(String(entry.version || ''))}`;
+      });
+    }
+
+    for (const file of files) {
+      const response = await fetch(modelFolder + file, { cache: 'no-store' });
+      if (!response.ok) throw new Error(`Flower model "${file.split('?')[0]}" could not be loaded (${response.status}).`);
+      const page = new DOMParser().parseFromString(await response.text(), 'text/html');
+      const meta = name => page.querySelector(`meta[name="${name}"]`)?.content.trim() || '';
+      const id = meta('flower-id'), name = meta('flower-name'), desc = meta('flower-description');
+      const svg = page.querySelector('template#flower-art')?.content.querySelector('svg');
+      if (!/^[a-z][a-z0-9-]*$/.test(id) || ['letter', 'constructor', 'prototype'].includes(id) || !name || !desc || !svg)
+        throw new Error(`Flower model "${file.split('?')[0]}" is missing valid metadata or its flower-art SVG template.`);
+      const previous = models.get(id);
+      if (previous) throw new Error(`Duplicate flower model id "${id}" in ${previous.file} and ${file}.`);
+      const clean = cleanModelSVG(svg, file.split('?')[0]);
+      Object.defineProperty(TYPES, id, { value: { name, emoji: meta('flower-emoji'), desc }, enumerable: true, configurable: true });
+      models.set(id, { file: file.split('?')[0], viewBox: clean.getAttribute('viewBox'), markup: clean.innerHTML });
+    }
+  }
+
+  function modelHead(type, id, instance) {
+    const model = models.get(type);
+    if (!model) return '';
+    const prefix = `flower-model-${id}-${instance}-${type}`;
+    const markup = model.markup
+      .replace(/\bid=(["'])(.*?)\1/g, (_, quote, value) => `id=${quote}${prefix}-${value}${quote}`)
+      .replace(/url\(#([^)]+)\)/g, `url(#${prefix}-$1)`)
+      .replace(/(href|xlink:href)=(["'])#([^"']+)\2/g, (_, attr, quote, value) => `${attr}=${quote}#${prefix}-${value}${quote}`);
+    return `<svg x="-50" y="-50" width="100" height="100" viewBox="${model.viewBox}" overflow="visible">${markup}</svg>`;
+  }
+
   const definitions = id => `<defs>
     <radialGradient id="rose-${id}" cx="32%" cy="24%" r="78%"><stop stop-color="#ffb0bd"/><stop offset=".34" stop-color="#ef4169"/><stop offset=".72" stop-color="#ae103f"/><stop offset="1" stop-color="#610b2c"/></radialGradient>
     <radialGradient id="rose-inner-${id}" cx="34%" cy="24%" r="80%"><stop stop-color="#ffc0c7"/><stop offset=".4" stop-color="#ff5278"/><stop offset="1" stop-color="#a10c39"/></radialGradient>
@@ -24,7 +104,9 @@ const Flowers = (() => {
   </defs>`;
   const petal = (a, c) => `<path class="petal lily-petal" d="M0 0C-15-12-12-34 0-46C12-34 15-12 0 0Z" fill="${c}" stroke="#c54579" stroke-width="1" transform="rotate(${a})"/><path d="M0-5V-33" stroke="#fff9fc" opacity=".48" stroke-width="1.2" transform="rotate(${a})"/>`;
   /* Flower heads drawn around (0,0), radius about 44 */
-  const head = (t, id) => ({
+  const head = (t, id, instance = 0) => {
+    if (models.has(t)) return modelHead(t, id, instance);
+    return ({
     rose: ring(7, a => `<g transform="rotate(${a})"><path class="petal rose-petal" d="M0 5C-12-5-30-10-29-27C-28-42-17-52-7-43C-2-56 13-54 19-42C30-36 31-21 23-10C16-2 7 4 0 5Z" fill="url(#rose-${id})" stroke="#8c1238" stroke-opacity=".68" stroke-width="1.2"/><path d="M-1 1C-10-9-18-19-15-31" fill="none" stroke="#ffd0d0" stroke-opacity=".42" stroke-width="1.3"/></g>`) +
       ring(6, a => `<g transform="rotate(${a + 30})"><path class="petal rose-petal" d="M0 3C-10-6-22-12-20-25C-18-37-7-41-1-31C8-42 22-33 20-21C18-11 8-3 0 3Z" fill="url(#rose-inner-${id})" stroke="#a31642" stroke-opacity=".7" stroke-width="1.1"/><path d="M0 0C-6-10-9-19-5-29" fill="none" stroke="#ffe0df" stroke-opacity=".48" stroke-width="1"/></g>`) +
       ring(5, a => `<path class="petal rose-petal" d="M0 2C-9-5-13-14-9-22C-5-29 3-27 4-20C12-26 17-17 12-9C9-4 4 0 0 2Z" fill="url(#rose-inner-${id})" stroke="#ff9cae" stroke-opacity=".58" stroke-width=".9" transform="rotate(${a + 20})"/>`) +
@@ -38,7 +120,8 @@ const Flowers = (() => {
     kath: `<g class="plumeria-head">` + ring(5, a => `<path class="petal plumeria-petal" d="M0 0C-24-6-22-38 0-44C22-38 24-6 0 0Z" fill="url(#plumeria-${id})" stroke="#e9b5b4" stroke-opacity=".72" stroke-width="1" transform="rotate(${a})"/>`) +
       ring(5, a => `<path d="M0 0C-9-4-9-24 0-30C9-24 9-4 0 0Z" fill="#ffd23f" opacity=".85" transform="rotate(${a})"/>`) +
       '<circle r="4" fill="#f59e0b"/></g>'
-  })[t];
+    })[t];
+  };
 
   /* Build the arrangement as an SVG string (only our own markup, never user text).
      Rule: single type with qty < 4 -> loose stems. qty >= 4, or several types -> wrapped bouquet. */
@@ -83,7 +166,7 @@ const Flowers = (() => {
     }).join('');
     const vesselFront = container === 'bottle' ? `<path d="${bottleShape}" fill="url(#bottle-gloss-${id})" fill-opacity=".26" stroke="#efffff" stroke-opacity=".68" stroke-width="2"/><path d="M159 377C154 394 159 414 168 421" fill="none" stroke="#fff" stroke-opacity=".62" stroke-width="5" stroke-linecap="round"/><path d="M183 276H217V321H183Z" fill="none" stroke="#e4ffff" stroke-opacity=".55" stroke-width="2"/>` : container === 'pot' ? `<path d="M140 340H260L246 423Q200 445 154 423Z" fill="url(#pot-glaze-${id})" stroke="#ffd6a2" stroke-width="3"/><path d="M140 340H260L255 355H145Z" fill="#df9b59" stroke="#ffe0b7" stroke-width="2"/><path d="M158 365L168 418M242 365L232 418" stroke="#fff0cc" stroke-opacity=".35" stroke-width="3"/>` : container === 'vase' ? `<path d="${vaseShape}" fill="url(#vase-gloss-${id})" fill-opacity=".64" stroke="#f1d59a" stroke-opacity=".92" stroke-width="2.5"/><path d="M168 287Q200 300 232 287M176 300Q200 309 224 300M184 323Q200 329 216 323" fill="none" stroke="#f5d894" stroke-opacity=".9" stroke-width="2"/><path d="M200 350C178 363 221 374 200 388C180 401 200 410 200 425M195 362C183 352 177 359 184 367C190 372 196 367 195 362ZM205 378C217 368 224 376 216 384C210 389 204 384 205 378ZM195 397C183 388 177 395 184 403C190 408 196 403 195 397ZM205 414C217 405 224 412 216 420C210 425 204 420 205 414Z" fill="none" stroke="#f6d996" stroke-opacity=".82" stroke-width="2" stroke-linecap="round"/><circle cx="200" cy="388" r="3.5" fill="#f7dda1"/><path d="M159 407Q200 428 241 407" fill="none" stroke="#f5d894" stroke-opacity=".65" stroke-width="1.5"/>` : '';
     const heads = [...P].sort((p, q) => q.tier - p.tier).map(p =>
-      `<g class="flower-touch" data-flower="${p.t}" transform="translate(${p.tx} ${p.ty}) rotate(${p.a}) scale(${k})"><g class="bloom" style="--sway-delay:${p.i * -.31}s">${head(p.t, id)}</g></g>`).join('');
+      `<g class="flower-touch" data-flower="${p.t}" transform="translate(${p.tx} ${p.ty}) rotate(${p.a}) scale(${k})"><g class="bloom" style="--sway-delay:${p.i * -.31}s">${head(p.t, id, p.i)}</g></g>`).join('');
     const cone = wrap ? `<path d="M118 290L282 290L224 428L176 428Z" fill="url(#wrap-${id})" opacity=".96"/><path d="M118 290L200 360L282 290" fill="#fff1f7" opacity=".24"/><path d="M133 296L185 420M267 296L215 420M200 300V428" stroke="#9e174f" stroke-opacity=".4" stroke-width="2"/><path d="M122 291L200 359L278 291" fill="none" stroke="#ffe3ef" stroke-opacity=".8" stroke-width="3"/><g transform="translate(200 322)"><path d="M0 0C-23-23-38-13-34 4C-30 17-11 11 0 0C23-23 38-13 34 4C30 17 11 11 0 0Z" fill="#ed2f83" stroke="#ffd7ec" stroke-width="1.5"/><circle r="7" fill="#ffb4d5"/></g>` : '';
     const more = total > CAP ? `<text x="200" y="${container ? 418 : 446}" fill="#ffd7ec" font-size="14" text-anchor="middle">+${total - CAP} more ${container ? 'inside' : 'in this bouquet'}</text>` : '';
     const viewBox = focus && !wrap ? '85 95 230 320' : '0 0 400 450';
@@ -106,7 +189,7 @@ const Flowers = (() => {
     w.append(b, el('small', '', label));
     return w;
   }
-  return { TYPES, scene, envelope };
+  return { TYPES, scene, envelope, loadModels };
 })();
 
 /* Letter overlay with typewriter animation. Uses textContent only (no HTML injection). */
