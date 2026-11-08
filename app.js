@@ -41,10 +41,27 @@ function init() {
   Object.keys(Flowers.TYPES).forEach(k => {
     const f = Flowers.TYPES[k]; pick[k] = 1;
     const c = el('article', 'card glass'), art = el('div', 'art'), badge = el('span', 'badge'), inp = el('input');
+    const vs = Flowers.variantsOf(k); let cur = k;            // cur = the colour (type key) this card currently adds
+    const title = el('h3', '', f.name), sw = el('div', 'swatches');
     if (k === 'letter') {
-      art.append(el('div', 'letter-art', ''));
+      art.append(Flowers.envelopeArt());
     } else {
       art.innerHTML = Flowers.scene([{ type: k, qty: 1 }], true);
+    }
+    if (vs.length > 1) {
+      sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', f.name + ' colour');
+      vs.forEach(v => {
+        const b = el('button', 'sw'); b.type = 'button'; b.title = v.label; b.style.setProperty('--c', v.swatch);
+        b.setAttribute('aria-label', v.label + ' ' + f.name.toLowerCase()); b.setAttribute('aria-pressed', String(v.key === cur));
+        b.onclick = () => {
+          if (cur === v.key) return;
+          cur = v.key; sw.querySelectorAll('.sw').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
+          art.innerHTML = Flowers.scene([{ type: cur, qty: 1 }], true);
+          art.classList.remove('swap'); void art.offsetWidth; art.classList.add('swap');
+          title.textContent = Flowers.TYPES[cur].name;
+        };
+        sw.append(b);
+      });
     }
     badge.id = 'b-' + k; badge.hidden = true;
     inp.type = 'number'; inp.min = 1; inp.value = 1; inp.setAttribute('aria-label', f.name + ' quantity');
@@ -58,13 +75,13 @@ function init() {
         $('#note').value = '';
         $('#nw').hidden = true;
       } else {
-        set(+inp.value); cart[k] = (cart[k] || 0) + pick[k];
+        set(+inp.value); cart[cur] = (cart[cur] || 0) + pick[k];
       }
       renderAll();
-      toast(k === 'letter' ? 'Letter selected' : pick[k] + ' × ' + f.name + ' added');
+      toast(k === 'letter' ? 'Letter selected' : pick[k] + ' × ' + Flowers.TYPES[cur].name + ' added');
     };
     if (k !== 'letter') q.append(m, inp, p);
-    c.append(badge, art, el('h3', '', f.name), el('p', 'muted', f.desc), q, add); $('#cards').append(c);
+    c.append(badge, art, title, ...(vs.length > 1 ? [sw] : []), el('p', 'muted', f.desc), q, add); $('#cards').append(c);
   });
   $('#nt').onchange = () => { $('#nw').hidden = !$('#nt').checked || hasLetter(); renderPreview(); };
   $('#note').oninput = () => { $('#cnt').textContent = Array.from($('#note').value).length + ' / 300 characters'; renderPreview(); };
@@ -85,7 +102,7 @@ function init() {
 /* ---- Cart + preview ---- */
 function renderAll() {
   const a = items(), L = $('#cart');
-  Object.keys(Flowers.TYPES).forEach(k => { const b = $('#b-' + k); if (b) { b.hidden = !cart[k]; b.textContent = '×' + (cart[k] || 0); } });
+  Object.keys(Flowers.TYPES).forEach(k => { const b = $('#b-' + k), n = Flowers.variantsOf(k).reduce((s, v) => s + (cart[v.key] || 0), 0); if (b) { b.hidden = !n; b.textContent = '×' + n; } });
   $('#nt').closest('.tg').hidden = hasLetter();
   $('#nw').hidden = hasLetter() || !$('#nt').checked;
   $('#letterWriter').hidden = !hasLetter();
@@ -93,7 +110,9 @@ function renderAll() {
   if (!a.length) L.append(el('p', 'muted', 'Your gift is empty. Choose a gift to get started.'));
   a.forEach(i => {
     const r = el('div', 'row'), m = el('button', 'sq', '−'), p = el('button', 'sq', '+'), x = el('button', 'sq', '✕');
-    r.append(el('span', '', Flowers.TYPES[i.type].name));
+    const dot = Flowers.TYPES[i.type].variantOf || Flowers.variantsOf(i.type).length > 1 ? Flowers.variantsOf(Flowers.TYPES[i.type].variantOf || i.type).find(v => v.key === i.type) : null, nm = el('span', '', Flowers.TYPES[i.type].name);
+    if (dot) { const d = el('i', 'sw-dot'); d.style.setProperty('--c', dot.swatch); nm.prepend(d); }
+    r.append(nm);
     m.onclick = () => { if (cart[i.type] > 1) cart[i.type]--; else delete cart[i.type]; renderAll(); };
     p.onclick = () => { if (i.type !== 'letter') cart[i.type]++; renderAll(); };
     x.onclick = () => { delete cart[i.type]; renderAll(); };
@@ -168,7 +187,7 @@ function renderGifts() {
 }
 
 Fx.start();
-Flowers.loadModels().then(route).catch(error => {
+Flowers.loadModels().then(() => { Flowers.enableTouch($('#cards')); Flowers.enableTouch($('#pv')); }).then(route).catch(error => {
   console.error('Flower models could not be initialized.', error);
   $('#login').hidden = true;
   $('#app').hidden = true;

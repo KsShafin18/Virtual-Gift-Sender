@@ -27,27 +27,7 @@
   if (!arrangement) return msg('This gift has expired', 'This special gift is no longer available.');
   const flowerArt = $('#flowers'), flowerManager = $('#flowerManager'), optionsToggle = $('#optionsToggle');
   const flowerChoices = $('#flowerChoices'), flowerStatus = $('#flowerStatus');
-  const enableFlowerPlay = () => {
-    const svg = flowerArt.querySelector('svg');
-    if (!svg) return;
-    svg.setAttribute('role', 'group');
-    svg.setAttribute('aria-label', 'Interactive flower arrangement');
-    svg.querySelectorAll('.flower-touch').forEach(flower => {
-      flower.setAttribute('role', 'button');
-      flower.setAttribute('tabindex', '0');
-      flower.setAttribute('aria-label', 'Make ' + Flowers.TYPES[flower.dataset.flower].name + ' dance');
-    });
-  };
-  const playFlower = flower => {
-    const bloom = flower.querySelector('.bloom');
-    if (!bloom || window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
-    bloom.animate([
-      { transform: 'scale(1) rotate(0deg)' },
-      { transform: 'scale(1.42) rotate(-8deg) translateY(-10px)', offset: .38 },
-      { transform: 'scale(.94) rotate(5deg) translateY(3px)', offset: .72 },
-      { transform: 'scale(1) rotate(0deg)' }
-    ], { duration: 720, easing: 'cubic-bezier(.2,1.3,.4,1)' });
-  };
+  Flowers.enableTouch(flowerArt, { enabled: () => flowerArt.classList.contains('interactive') });
   const syncOptions = () => flowerChoices.querySelectorAll('[data-container]').forEach(button => {
     button.setAttribute('aria-pressed', String(button.dataset.container === arrangement.container));
   });
@@ -55,7 +35,6 @@
     const total = arrangement.items.reduce((sum, item) => sum + item.qty, 0);
     flowerArt.innerHTML = total && arrangement.container !== 'discard'
       ? Flowers.scene(arrangement.items, false, arrangement.container || '') : '';
-    if (flowerArt.classList.contains('interactive')) enableFlowerPlay();
     const place = { bottle: 'bottle', pot: 'Plant Flower', vase: 'vase' }[arrangement.container];
     flowerStatus.textContent = total
       ? place ? `${total} ${total === 1 ? 'flower' : 'flowers'} arranged in your ${place}.` : ''
@@ -63,17 +42,6 @@
   };
   syncOptions();
   renderArrangement();
-  flowerArt.addEventListener('click', event => {
-    const flower = event.target.closest('[data-flower]');
-    if (!flower || !flowerArt.contains(flower)) return;
-    playFlower(flower);
-  });
-  flowerArt.addEventListener('keydown', event => {
-    if ((event.key === 'Enter' || event.key === ' ') && event.target.matches('[data-flower]')) {
-      event.preventDefault();
-      playFlower(event.target);
-    }
-  });
   optionsToggle.addEventListener('click', () => {
     const open = optionsToggle.getAttribute('aria-expanded') !== 'true';
     optionsToggle.setAttribute('aria-expanded', String(open));

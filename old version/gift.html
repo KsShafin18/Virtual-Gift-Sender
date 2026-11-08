@@ -1,0 +1,35 @@
+<!DOCTYPE html>
+<html lang="en"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>A gift for you</title>
+<link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Great+Vibes&family=Hind+Siliguri:wght@400;500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="gift.css">
+</head><body class="gp">
+<div id="fx"></div>
+<small id="gardenCredit" class="credit garden-credit"></small>
+<section id="state" class="center" hidden><div class="glass lcard"><h1 class="script"></h1><p></p></div></section>
+<section id="stage" class="stage">
+  <h1 class="script">You have received a Gift From Ks Shafin,</h1>
+  <button id="go" class="for" type="button">Tap to Open</button>
+  <div class="gwrap">
+    <div id="flowers" class="flowers"></div>
+    <div class="box" role="button" tabindex="0" aria-label="Tap to open your gift"><div class="bbody"><i class="rib"></i></div><div class="lid"><i class="rib"></i></div><span class="bow" aria-hidden="true"></span></div>
+    <div id="noteslot"></div>
+  </div>
+  <section id="flowerManager" class="flower-manager" hidden aria-label="Flower arrangement options">
+    <button id="optionsToggle" class="options-toggle" type="button" aria-expanded="false" aria-controls="flowerChoices"><span aria-hidden="true">⚙</span> Options</button>
+    <div id="flowerChoices" class="flower-choices" role="group" aria-label="Choose a flower arrangement" hidden>
+      <button class="flower-choice" type="button" data-container="bottle" aria-pressed="false">Bottle</button>
+      <button class="flower-choice" type="button" data-container="pot" aria-pressed="false">Plant Flower</button>
+      <button class="flower-choice" type="button" data-container="vase" aria-pressed="false">Vase</button>
+      <button class="flower-choice" type="button" data-container="discard" aria-pressed="false">Throw Away</button>
+    </div>
+    <p id="flowerStatus" aria-live="polite"></p>
+  </section>
+</section>
+<small class="credit">Developed By Ks Shafin</small>
+<script src="storage.js"></script>
+<script src="flowers.js"></script>
+<script src="gift.js"></script>
+</body></html>

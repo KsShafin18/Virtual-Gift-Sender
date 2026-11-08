@@ -93,3 +93,16 @@ and the template contains the finished flower.
 3. Vercel deploy-এ `vercel.json` build-এর সময় catalog auto-generate করে, তাই নতুন HTML commit/push করলেই deploy-তে সেটি যোগ হয়। অন্য static host-এ deploy করার আগে root folder-এ `node tools/build-flower-catalog.js` চালান।
 
 File replace করলে catalog entry manual edit করতে হয় না। Manifest শুধু static host-এ নতুন filename discover করার জন্য; artwork সবসময় ওই HTML file থেকেই load হয়।
+
+## Optional metadata: `flower-kind`
+
+Plants that stand on their own (for example potted cacti) should not be drawn on a flower stem. Add
+
+```html
+<meta name="flower-kind" content="cactus">
+```
+
+and the app renders the model as a free-standing plant (its own pot, no stem or leaf) and keeps it out of the wrapped
+bouquet. Models whose `flower-id` starts with `cactus` are treated the same way. Without the tag, a model is a normal
+flower. `flower-accent` (optional, a hex colour) sets the colour of the petals that fly off when the flower is tapped.
+Because the app draws every model once as a shared SVG `<symbol>`, keep gradient/filter IDs unique within a file.
