@@ -42,7 +42,7 @@ function init() {
     const f = Flowers.TYPES[k]; pick[k] = 1;
     const c = el('article', 'card glass'), art = el('div', 'art'), badge = el('span', 'badge'), inp = el('input');
     if (k === 'letter') {
-      art.append(el('div', 'letter-art', ''));
+      art.append(Flowers.envelopeArt());
     } else {
       art.innerHTML = Flowers.scene([{ type: k, qty: 1 }], true);
     }
@@ -168,7 +168,7 @@ function renderGifts() {
 }
 
 Fx.start();
-Flowers.loadModels().then(route).catch(error => {
+Flowers.loadModels().then(() => { Flowers.enableTouch($('#cards')); Flowers.enableTouch($('#pv')); }).then(route).catch(error => {
   console.error('Flower models could not be initialized.', error);
   $('#login').hidden = true;
   $('#app').hidden = true;

@@ -4,13 +4,13 @@
 .stage.revealing h1{opacity:0;transform:translateY(-14px);pointer-events:none}
 .for{margin-top:22px;padding:12px 24px;min-height:48px;border:0;background:transparent;color:var(--lp);font:600 1.1rem Poppins,sans-serif;letter-spacing:.05em;cursor:pointer;touch-action:manipulation}
 .for:hover{color:var(--sp);text-shadow:0 0 16px var(--pk)}
-body.dim #fx{filter:blur(4px) brightness(.55)}
+body.dim #fx{opacity:.4}
 .gwrap{position:relative;width:min(92vw,420px);height:min(56vh,440px);margin:10px auto}
-.flowers{position:absolute;inset:0;z-index:1;opacity:0;pointer-events:none;transform-origin:50% 100%;transform:translateY(38%) scale(.35);transition:transform 2s ease,opacity 1s;filter:drop-shadow(0 0 16px rgba(255,47,146,.5))}
-.flowers svg{width:100%;height:100%}
+.flowers{position:absolute;inset:0;z-index:1;opacity:0;pointer-events:none;display:flex;justify-content:center;align-items:flex-end;transform-origin:50% 100%;transform:translateY(38%) scale(.35);transition:transform 2s ease,opacity 1s}
+.flowers::before{content:"";position:absolute;inset:6% 4% 0;z-index:-1;border-radius:50%;background:radial-gradient(circle,rgba(255,47,146,.3),transparent 68%);pointer-events:none}
+.flowers .bq{height:100%;width:auto;max-width:100%}
 .flowers.interactive{pointer-events:auto}
-.flowers.interactive .flower-touch{cursor:pointer}
-.flowers.interactive .flower-touch:focus-visible .bloom{filter:drop-shadow(0 0 12px rgba(255,215,236,.9))}
+.flowers:not(.interactive) .flower-touch{pointer-events:none}
 .box{position:absolute;left:50%;bottom:0;width:150px;height:116px;margin-left:-75px;z-index:2;cursor:pointer;touch-action:manipulation;transition:opacity 1.2s,transform 1.2s}
 .box:focus-visible{outline:2px solid var(--lp);outline-offset:10px;border-radius:12px}
 .box.disabled{pointer-events:none}

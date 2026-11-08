@@ -37,10 +37,7 @@ textarea{resize:vertical;font-family:'Hind Siliguri',Poppins,sans-serif}
 .card{padding:16px;text-align:center;position:relative;transition:transform .25s,box-shadow .25s}
 .card:hover{transform:translateY(-4px);box-shadow:0 0 34px rgba(255,47,146,.3)}
 .card h3{margin:6px 0 4px;font-size:1rem;color:var(--sp)}
-.art{height:210px}.art svg{width:100%;height:100%}
-.letter-art{height:150px;width:190px;position:relative;margin:28px auto 32px;border-radius:8px;background:linear-gradient(145deg,#fff8fb,#ffd7ec);box-shadow:0 8px 22px rgba(255,47,146,.28)}
-.letter-art::before{content:"";position:absolute;left:50%;top:18px;transform:translateX(-50%);width:116px;height:82px;border:1px solid #e9a1c3;border-radius:4px;background:linear-gradient(#fff,#fff1f7);box-shadow:0 0 0 5px rgba(255,255,255,.55)}
-.letter-art::after{content:"";position:absolute;left:0;right:0;bottom:0;height:72px;background:linear-gradient(145deg,transparent 49%,#f1aacb 50%,#ffd7ec 52%) left/50% 100% no-repeat,linear-gradient(215deg,transparent 49%,#e997bd 50%,#ffd7ec 52%) right/50% 100% no-repeat}
+.art{height:210px;display:flex;justify-content:center;align-items:flex-end}.art .bq{height:100%;width:auto;max-width:100%}
 .badge{position:absolute;top:12px;right:12px;background:var(--pk);border-radius:99px;padding:2px 10px;font-size:.8rem;font-weight:600}
 .qty{display:flex;gap:8px;align-items:center;margin:12px 0}.qty input{margin:0;text-align:center}
 .card .btn{width:100%}
@@ -51,7 +48,7 @@ textarea{resize:vertical;font-family:'Hind Siliguri',Poppins,sans-serif}
 .recipient-field{display:block;margin-top:16px;color:var(--sp);font-size:.88rem;font-weight:600}
 .recipient-field small{font-size:.78rem;font-weight:300;opacity:.7}
 .recipient-field+input{margin-top:7px}
-.pv{position:relative;min-height:340px;display:grid;place-items:center}.pv svg{width:min(100%,360px)}
+.pv{position:relative;min-height:340px;display:grid;place-items:center}.pv .bq{width:min(100%,360px)}
 .gcard{text-align:left}.gcard p{margin:3px 0;font-size:.88rem;word-break:break-word}
 .pill{float:right;background:rgba(255,47,146,.25);border-radius:99px;padding:2px 10px;font-size:.75rem;font-variant-numeric:tabular-nums}.pill.dead{background:#555}
 .recipient-name{color:var(--lp);font-size:.9rem!important;font-weight:600}
@@ -67,20 +64,60 @@ textarea{resize:vertical;font-family:'Hind Siliguri',Poppins,sans-serif}
 .note-prompt{display:block;color:#a7426f;font-size:.85rem;opacity:.8}
 .letter .keep-note{min-width:190px;background:linear-gradient(135deg,#d91e70,#8f174f);animation:keep-in .5s ease both}
 @keyframes keep-in{from{transform:translateY(8px);opacity:0}to{transform:translateY(0);opacity:1}}
-.arrangement{transform-origin:50% 88%;animation:arrangement-sway 7s ease-in-out infinite}
-.arrangement .sprig{transform-box:fill-box;transform-origin:50% 100%;animation:stem-sway 5.2s ease-in-out infinite;animation-delay:var(--sway-delay,0s)}
-.arrangement .bloom{transform-box:fill-box;transform-origin:50% 100%;animation:bloom-sway 4.2s ease-in-out infinite;animation-delay:var(--sway-delay,0s)}
-.arrangement .petal{animation:petal-shimmer 4.8s ease-in-out infinite}
-@keyframes arrangement-sway{0%,100%{transform:rotate(-.45deg)}50%{transform:rotate(.45deg)}}
-@keyframes stem-sway{0%,100%{transform:rotate(-1.5deg)}50%{transform:rotate(1.5deg)}}
-@keyframes bloom-sway{0%,100%{transform:rotate(-2.2deg)}50%{transform:rotate(2.2deg)}}
-@keyframes petal-shimmer{0%,100%{opacity:.93}50%{opacity:1}}
 @keyframes unfold{from{transform:scaleY(.1) translateY(40px);opacity:0}}
+
+
+/* ===== Flower arrangement (flowers are real elements: touchable, GPU-animated, never clipped) ===== */
+.bq{position:relative;display:block;width:100%;-webkit-tap-highlight-color:transparent;-webkit-user-select:none;user-select:none;-webkit-touch-callout:none}
+.bq-in{position:absolute;inset:0;transform-origin:50% 94%;animation:bq-sway 9s ease-in-out infinite;will-change:transform}
+.bq-layer{position:absolute;inset:0;width:100%;height:100%;overflow:visible;pointer-events:none}
+.bq-heads{position:absolute;inset:0}
+.fl{position:absolute;transform:translate(-50%,-50%);aspect-ratio:1;border-radius:50%;cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.fl:focus,.fl:focus-visible{outline:0}
+.fl-sway,.fl-lift,.bloom{display:block;width:100%;height:100%}
+.fl-sway{animation:fl-sway 5.6s ease-in-out var(--d,0s) infinite;will-change:transform}
+.cac .fl-sway{animation:cac-sway 7s ease-in-out var(--d,0s) infinite;transform-origin:50% 96%}
+.fl-lift{transition:transform .3s cubic-bezier(.22,1,.36,1)}
+.cac .fl-lift,.cac .bloom{transform-origin:50% 96%}
+.fl.pressed .fl-lift{transform:scale(.95);transition-duration:.1s}
+@media(hover:hover){.fl:hover .fl-lift{transform:translateY(-2%) scale(1.07)}.fl.pressed:hover .fl-lift{transform:scale(.95)}}
+.hd{display:block;width:100%;height:100%;overflow:visible;pointer-events:none}
+.fl:focus-visible .hd{filter:drop-shadow(0 0 4px #fff) drop-shadow(0 0 10px var(--pk))}
+.tap-ring,.tap-petal{position:absolute;pointer-events:none;will-change:transform,opacity}
+.tap-ring{border-radius:50%;border:2px solid var(--c);box-shadow:0 0 14px var(--c),inset 0 0 10px var(--c);z-index:999}
+.tap-petal{width:8px;height:11px;border-radius:70% 0 70% 0;background:var(--c);opacity:0;z-index:999}
+.bq-more{position:absolute;left:0;right:0;bottom:-4px;text-align:center;font-size:.72rem;color:var(--sp);opacity:.85;text-shadow:0 0 6px #000}
+@keyframes bq-sway{0%,100%{transform:rotate(-.5deg)}50%{transform:rotate(.5deg)}}
+@keyframes fl-sway{0%,100%{transform:rotate(calc(var(--a,2deg)*-1))}50%{transform:rotate(var(--a,2deg))}}
+@keyframes cac-sway{0%,100%{transform:rotate(-.5deg)}50%{transform:rotate(.5deg)}}
+
+/* ===== Envelope: flap points DOWN when closed and hinges UP when opened ===== */
 .envwrap{position:absolute;right:2%;bottom:4%;z-index:4;text-align:center;animation:bob2 4s ease-in-out infinite}
 .envwrap small{display:block;margin-top:8px;color:var(--sp);font-size:.75rem;text-shadow:0 0 8px #000}
-.env{position:relative;width:96px;height:66px;border:0;border-radius:6px;cursor:pointer;background:linear-gradient(135deg,var(--lp),var(--pk));box-shadow:0 0 24px rgba(255,47,146,.7)}
-.env .flap{position:absolute;inset:0 0 auto 0;height:55%;background:#ff7fbd;clip-path:polygon(0 0,100% 0,50% 100%);transform-origin:top;transition:transform .6s}
-.env.open .flap{transform:rotateX(180deg)}
-.seal{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:26px;height:26px;border-radius:50%;background:#e11d48;color:#fff;font-style:normal;font-size:.85rem;line-height:26px;box-shadow:0 0 14px #ff2f92}
+.env{--ew:96px;position:relative;display:block;width:var(--ew);aspect-ratio:96/66;padding:0;border:0;background:none;cursor:pointer;perspective:calc(var(--ew)*4);-webkit-tap-highlight-color:transparent;transform-style:preserve-3d}
+.env>span,.env>span>*{position:absolute;display:block}
+.env-back{inset:0;border-radius:6px;background:linear-gradient(160deg,#ff7fbd,#e8408f);box-shadow:0 0 14px rgba(255,47,146,.6),0 6px 14px rgba(40,0,30,.4)}
+.env-paper{left:9%;right:9%;top:10%;bottom:8%;border-radius:3px;background:linear-gradient(#fff,#fff0f7);box-shadow:0 1px 3px rgba(120,10,70,.3);transition:transform .6s cubic-bezier(.3,.8,.3,1) .12s;overflow:hidden}
+.env-paper i{left:14%;right:14%;height:6%;top:calc(24% + var(--n,0)*14%);background:#f2b3d0;border-radius:99px;opacity:.7}
+.env-paper i:nth-child(2){--n:1;right:30%}.env-paper i:nth-child(3){--n:2;right:22%}
+.env-front{inset:0;border-radius:6px;overflow:hidden}
+.env-front svg{width:100%;height:100%;display:block}
+.env-flap{left:0;right:0;top:0;height:55%;transform-origin:50% 0;transform-style:preserve-3d;transition:transform .65s cubic-bezier(.4,0,.2,1)}
+.env-flap>span{inset:0;clip-path:polygon(0 0,100% 0,50% 100%)}
+.flap-out{background:linear-gradient(180deg,#ff9ccc,#ff5fa8);transition:filter .3s ease .25s}
+.seal{left:50%;top:78%;width:calc(var(--ew)*.27);height:calc(var(--ew)*.27);margin:calc(var(--ew)*-.135) 0 0 calc(var(--ew)*-.135);border-radius:50%;background:radial-gradient(circle at 35% 30%,#ff5a7a,#c4123f);color:#fff;font-style:normal;font-size:calc(var(--ew)*.12);line-height:calc(var(--ew)*.27);text-align:center;box-shadow:0 0 10px #ff2f92;transition:opacity .15s}
+.env.open .env-flap{transform:rotateX(180deg)}
+.env.open .seal{opacity:0}
+.env.open .flap-out{filter:brightness(.78) saturate(1.15)}
+.env.open .env-paper{transform:translateY(-40%)}
+.env:disabled{cursor:default}
+.env-art{--ew:190px;margin:0 auto 10px;cursor:default}
+.env-art .env-back{box-shadow:0 8px 22px rgba(255,47,146,.4)}
+.env-art .env-flap,.env-art .env-paper{transition:none}
 @keyframes bob2{50%{transform:translateY(-8px)}}
 @media(prefers-reduced-motion:reduce){*{animation-duration:.01s!important;transition-duration:.01s!important}}
+@media(max-width:480px){.env{--ew:80px}.env-art{--ew:170px}}
+
+/* Performance: a live blur behind moving particles/flowers is re-computed every frame. The panels are already
+   translucent, so they use a slightly denser tint instead of backdrop-filter. */
+.card.glass,.glass.pad{-webkit-backdrop-filter:none;backdrop-filter:none;background:rgba(40,0,31,.7)}
