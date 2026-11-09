@@ -431,11 +431,7 @@ const Flowers = (() => {
       if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.flower-touch') && enabled()) { e.preventDefault(); play(e.target); }
     });
   }
-<<<<<<< HEAD
   return { TYPES, scene, envelope, envelopeArt, enableTouch, loadModels, variantsOf };
-=======
-  return { TYPES, scene, envelope, envelopeArt, enableTouch, loadModels };
->>>>>>> origin/main
 })();
 
 /* Letter overlay with typewriter animation. Uses textContent only (no HTML injection). */
