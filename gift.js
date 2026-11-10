@@ -1,6 +1,6 @@
 /* Recipient page: checks existence + expiry on every load, then runs the reveal. */
 (function () {
-  Flowers.loadModels().then(start).catch(error => {
+  Flowers.loadModels().then(() => { Specials.register(); start(); }).catch(error => {
     console.error('Flower models could not be initialized.', error);
     const stage = $('#stage'), state = $('#state');
     stage.hidden = true;
@@ -22,21 +22,56 @@
   if (!g.items.every(item => Object.prototype.hasOwnProperty.call(Flowers.TYPES, item.type)))
     return msg('Invalid Gift Link', 'This link contains unsupported gift items. Ask the sender to create a new gift link.');
   const letterGift = g.items.some(item => item.type === 'letter');
-  const flowerItems = g.items.filter(item => item.type !== 'letter');
+  const specialItems = g.items.filter(item => Flowers.TYPES[item.type].special);
+  const flowerItems = g.items.filter(item => item.type !== 'letter' && !Flowers.TYPES[item.type].special);
   let arrangement = Store.receiver(g);
   if (!arrangement) return msg('This gift has expired', 'This special gift is no longer available.');
   const flowerArt = $('#flowers'), flowerManager = $('#flowerManager'), optionsToggle = $('#optionsToggle');
   const flowerChoices = $('#flowerChoices'), flowerStatus = $('#flowerStatus');
   Flowers.enableTouch(flowerArt, { enabled: () => flowerArt.classList.contains('interactive') });
+  /* ---- special gifts (moon, snow globe, kidney): each has its own options ---- */
+  const spLayer = $('#specials'), feetLayer = $('#feet'), gwrap = $('#gwrap');
+  const extra = () => arrangement.extra || (arrangement.extra = {});
+  const live = () => specialItems.filter(item => extra()[item.type] !== 'discard');
+  const renderSpecials = hasFlowers => {
+    const on = live(), feetOn = extra().moon === 'feet' && on.some(item => item.type === 'moon');
+    const row = on.filter(item => !(item.type === 'moon' && feetOn)), w = hasFlowers ? [100, 82, 70] : [62, 46, 46];
+    spLayer.innerHTML = row.length ? `<div class="sp-row" style="--w:${w[Math.min(row.length, 3) - 1]}%">${row.map(item => `<div class="sp-wrap" data-for="${item.type}">${Specials.art(item.type, extra()[item.type] || '')}${item.type === 'kidney' && extra().kidney === 'message' ? `<button class="sp-msg" type="button" data-i="0">${Specials.MSG[0]}</button>` : ''}</div>`).join('')}</div>` : '';
+    feetLayer.innerHTML = feetOn ? Specials.feet(!hasFlowers) : '';
+    gwrap.classList.toggle('has-fl', hasFlowers && row.length > 0);
+    gwrap.classList.toggle('on-feet', feetOn && hasFlowers);
+  };
+  Specials.enableTouch(spLayer, { enabled: () => spLayer.classList.contains('interactive') });
+  Specials.enableTouch(feetLayer, { enabled: () => spLayer.classList.contains('interactive') });
+  spLayer.addEventListener('click', e => {
+    const b = e.target.closest('.sp-msg');
+    if (b) { b.dataset.i = 1 - b.dataset.i; b.textContent = Specials.MSG[b.dataset.i]; }
+  });
+  specialItems.forEach(item => {
+    const grp = document.createElement('div'), t = Specials.T[item.type];
+    grp.className = 'opt-group'; grp.innerHTML = `<span class="opt-title">${t.emoji} ${t.name}</span>` + t.opts.map(([k, label]) => `<button class="flower-choice" type="button" data-sp="${item.type}" data-opt="${k}" aria-pressed="false">${label}</button>`).join('');
+    flowerChoices.append(grp);
+  });
+  if (!flowerItems.length) flowerChoices.querySelectorAll('[data-container]').forEach(b => b.hidden = true);
+  const syncSpecials = () => flowerChoices.querySelectorAll('[data-sp]').forEach(b => b.setAttribute('aria-pressed', String(extra()[b.dataset.sp] === b.dataset.opt)));
+  flowerChoices.querySelectorAll('[data-sp]').forEach(button => button.addEventListener('click', () => {
+    const type = button.dataset.sp, opt = button.dataset.opt;
+    extra()[type] = opt; syncSpecials(); Store.saveReceiver(g, arrangement);
+    flowerChoices.hidden = true; optionsToggle.setAttribute('aria-expanded', 'false'); optionsToggle.focus();
+    const done = () => { renderArrangement(); flowerStatus.textContent = opt === 'discard' ? `${Specials.T[type].name} thrown away.` : ''; };
+    const target = spLayer.querySelector(`[data-for="${type}"]`);
+    if (opt === 'discard' && target) { target.classList.add('discarding'); setTimeout(done, 650); } else done();
+  }));
   const syncOptions = () => flowerChoices.querySelectorAll('[data-container]').forEach(button => {
     button.setAttribute('aria-pressed', String(button.dataset.container === arrangement.container));
   });
   const renderArrangement = () => {
-    const total = arrangement.items.reduce((sum, item) => sum + item.qty, 0);
+    const fl = arrangement.items.filter(item => !Flowers.TYPES[item.type].special), total = fl.reduce((sum, item) => sum + item.qty, 0);
     flowerArt.innerHTML = total && arrangement.container !== 'discard'
-      ? Flowers.scene(arrangement.items, false, arrangement.container || '') : '';
+      ? Flowers.scene(fl, false, arrangement.container || '') : '';
+    renderSpecials(total > 0);
     const place = { bottle: 'bottle', pot: 'Plant Flower', vase: 'vase' }[arrangement.container];
-    flowerStatus.textContent = total
+    flowerStatus.textContent = !flowerItems.length ? '' : total
       ? place ? `${total} ${total === 1 ? 'flower' : 'flowers'} arranged in your ${place}.` : ''
       : 'Your flowers have been thrown away.';
   };
@@ -55,7 +90,7 @@
     optionsToggle.setAttribute('aria-expanded', 'false');
     optionsToggle.focus();
     if (arrangement.container === 'discard') {
-      arrangement.items = [];
+      arrangement.items = arrangement.items.filter(item => Flowers.TYPES[item.type].special);
       Store.saveReceiver(g, arrangement);
       flowerStatus.textContent = 'Sending the flowers away...';
       flowerArt.classList.add('discarding');
@@ -96,9 +131,10 @@
     S('untie', 200); S('open', 1100); S('rise', 1800); S('center', 3800);
     setTimeout(() => {
       document.body.classList.add('dim'); sg.classList.add('float');
-      if (flowerItems.length) {
+      if (flowerItems.length || specialItems.length) {
         flowerManager.hidden = false;
-        flowerArt.classList.add('interactive');
+        flowerArt.classList.add('interactive'); spLayer.classList.add('interactive'); feetLayer.classList.add('interactive');
+        syncSpecials();
         renderArrangement();
       }
       if (letterGift) $('#noteslot').append(Flowers.envelope(envelope => Letter.open(g.letterText, {

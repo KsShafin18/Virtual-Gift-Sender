@@ -50,3 +50,21 @@ body.dim #fx{opacity:.4}
 .garden-credit{top:10px;bottom:auto;max-width:calc(100vw - 28px)}
 @keyframes pulse{50%{box-shadow:0 0 40px var(--pk)}}
 @media(max-width:480px){.envwrap{right:0}.env{width:80px;height:56px}.flower-manager{padding:7px 10px}.flower-choices{width:min(88vw,320px)}}
+
+/* ===== Special gifts on the gift page ===== */
+/* centred inside the pink glow (the glow is the flowers layer's ::before, centred at 53% of the stage) */
+#specials,#feet{align-items:center;padding-top:6%;box-sizing:border-box}
+#specials::before,#feet::before{display:none}
+#specials .sp-row{width:100%;margin:0;gap:10px;justify-content:center;align-items:center}
+#specials .sp-wrap{flex:0 0 var(--w,62%);max-width:var(--w,62%)}
+#specials .sp{width:100%}
+.gwrap.has-fl #specials{justify-content:flex-end;padding-top:0;align-items:flex-end}
+.gwrap.has-fl #specials .sp-row{width:38%;flex-direction:column;align-items:center;gap:4px}
+.gwrap.has-fl #specials .sp-wrap{flex:none;max-width:none;width:100%;display:flex;justify-content:center}
+.gwrap.has-fl #flowers .bq{transform:translateX(-14%) scale(.84);transform-origin:50% 100%}
+.gwrap.on-feet #feet{align-items:flex-end;padding-top:0}
+.gwrap.on-feet #flowers{inset:0 0 46px}
+.sp-wrap.discarding{animation:throw-away .65s ease-in forwards}
+.opt-group{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.opt-title{grid-column:1/-1;margin-top:4px;font:600 .8rem Poppins,sans-serif;color:var(--lp);text-align:left}
+.flower-choice[hidden]{display:none}

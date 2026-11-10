@@ -23,10 +23,12 @@ const Store = (() => {
   };
   const write = a => { try { localStorage.setItem(G, JSON.stringify(a)); } catch (e) { alert('Could not save: browser storage is full or blocked.'); } };
   const receiverItems = gift => gift.items.filter(item => item.type !== 'letter').map(item => ({ type: item.type, qty: item.qty }));
+  const EXTRA = { moon: ['glass', 'feet', 'holder', 'discard'], snowglobe: ['play', 'discard'], kidney: ['message', 'discard'] };
+  const validExtra = x => x === undefined || (!!x && typeof x === 'object' && Object.entries(x).every(([k, v]) => Object.prototype.hasOwnProperty.call(EXTRA, k) && EXTRA[k].includes(v)));
   const validReceiver = (state, gift) => {
     const original = new Map(receiverItems(gift).map(item => [item.type, item.qty]));
     return !!state && state.expiresAt === gift.expiresAt &&
-      [null, 'bottle', 'pot', 'vase', 'discard'].includes(state.container) && Array.isArray(state.items) &&
+      [null, 'bottle', 'pot', 'vase', 'discard'].includes(state.container) && validExtra(state.extra) && Array.isArray(state.items) &&
       state.items.every(item => item && original.has(item.type) && Number.isSafeInteger(item.qty) && item.qty > 0 && item.qty <= original.get(item.type)) &&
       new Set(state.items.map(item => item.type)).size === state.items.length;
   };

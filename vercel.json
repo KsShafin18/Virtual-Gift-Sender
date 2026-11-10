@@ -1,4 +1,7 @@
 {
   "buildCommand": "node tools/build-flower-catalog.js",
-  "outputDirectory": "."
+  "outputDirectory": ".",
+  "headers": [
+    { "source": "/(.*)\\.(js|css|html)", "headers": [{ "key": "Cache-Control", "value": "no-cache" }] }
+  ]
 }

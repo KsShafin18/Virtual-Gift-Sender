@@ -3,8 +3,8 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>A gift for you</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Great+Vibes&family=Hind+Siliguri:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
-<link rel="stylesheet" href="gift.css">
+<link rel="stylesheet" href="style.css?v=4">
+<link rel="stylesheet" href="gift.css?v=4">
 </head><body class="gp">
 <div id="fx"></div>
 <small id="gardenCredit" class="credit garden-credit"></small>
@@ -12,8 +12,10 @@
 <section id="stage" class="stage">
   <h1 class="script">You have received a Gift From Ks Shafin,</h1>
   <button id="go" class="for" type="button">Tap to Open</button>
-  <div class="gwrap">
+  <div class="gwrap" id="gwrap">
+    <div id="feet" class="flowers" style="z-index:0"></div>
     <div id="flowers" class="flowers"></div>
+    <div id="specials" class="flowers" style="z-index:2"></div>
     <div class="box" role="button" tabindex="0" aria-label="Tap to open your gift"><div class="bbody"><i class="rib"></i></div><div class="lid"><i class="rib"></i></div><span class="bow" aria-hidden="true"></span></div>
     <div id="noteslot"></div>
   </div>
@@ -29,7 +31,8 @@
   </section>
 </section>
 <small class="credit">Developed By Ks Shafin</small>
-<script src="storage.js"></script>
-<script src="flowers.js"></script>
-<script src="gift.js"></script>
+<script src="storage.js?v=4"></script>
+<script src="flowers.js?v=4"></script>
+<script src="specials.js?v=4"></script>
+<script src="gift.js?v=4"></script>
 </body></html>

@@ -61,6 +61,17 @@ const Flowers = (() => {
       ]
     }
   };
+  /* Wooden roses: the rose artwork recoloured to carved wood (or lacquered in a colour) with a grain texture on top. */
+  const WOOD_FILTER = '<defs><filter id="woodGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.42" numOctaves="2" seed="7" result="n"/>' +
+    '<feColorMatrix in="n" type="matrix" values="0 0 0 0 .22  0 0 0 0 .11  0 0 0 0 .04  1.25 0 0 0 -.42" result="g"/><feComposite in="g" in2="SourceGraphic" operator="in" result="gr"/>' +
+    '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gr"/></feMerge></filter></defs>';
+  const lacquer = (h, s, l) => [h, s, l];
+  VARIANTS['wood-rose'] = {
+    from: 'rose', overlay: m => `${WOOD_FILTER}<g filter="url(#woodGrain)">${m}</g>`,
+    name: 'Wooden Roses', emoji: '🌹', desc: 'Hand-carved roses that never wilt.',
+    base: { label: 'Natural', swatch: '#b8834c', fn: (h, s, l) => [25 + l * 12, .46 + .16 * l, .1 + l * .66], c: ['#9a6a3a', '#c99a62', '#e6c597'] },
+    list: [{ id: 'red', label: 'Red', swatch: '#d41a47', name: 'Red Wooden Roses', c: ['#c4143f', '#e84a6f', '#ffb0c0'], fn: lacquer }, ...VARIANTS.rose.list.map(v => ({ ...v, name: v.label + ' Wooden Roses' }))]
+  };
   const hexToHsl = hex => {
     let h = hex.slice(1); if (h.length === 3) h = [...h].map(c => c + c).join('');
     const r = parseInt(h.slice(0, 2), 16) / 255, g = parseInt(h.slice(2, 4), 16) / 255, b = parseInt(h.slice(4, 6), 16) / 255;
@@ -80,17 +91,20 @@ const Flowers = (() => {
   };
   const recolor = (markup, fn) => markup.replace(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-zA-Z])/g, m => hslToHex(...fn(...hexToHsl(m))));
   function registerVariants() {
-    Object.entries(VARIANTS).forEach(([base, cfg]) => {
-      const m = models.get(base), t = TYPES[base];
+    const add = (key, t, m, fn, c, enumerable, extra = {}) => {
+      if (models.has(key) || Object.prototype.hasOwnProperty.call(TYPES, key)) return;
+      Object.defineProperty(TYPES, key, { value: { name: t.name, emoji: t.emoji, desc: t.desc, ...extra }, enumerable, configurable: true });
+      models.set(key, { ...m, markup: recolor(m.markup, fn), accent: c[0] });
+      return key;
+    };
+    Object.entries(VARIANTS).forEach(([type, cfg]) => {
+      const src = cfg.from || type, m = models.get(src), t = TYPES[src];
       if (!m || !t) return;
-      cfg.list.forEach(v => {
-        const key = `${base}-${v.id}`;
-        if (models.has(key) || Object.prototype.hasOwnProperty.call(TYPES, key)) return;
-        // non-enumerable: usable everywhere (links, receiver, scene) but it does not get a dashboard card of its own
-        Object.defineProperty(TYPES, key, { value: { name: v.name, emoji: t.emoji, desc: t.desc, variantOf: base }, enumerable: false, configurable: true });
-        models.set(key, { ...m, markup: recolor(m.markup, v.fn), accent: v.c[0] });
-        STYLE[key] = { s: (STYLE[base] || DEF_STYLE).s, c: v.c };
-      });
+      const wrap = (key, fn, c) => { const k = add(key, key === type ? { ...t, ...cfg } : { ...t, name: cfg.list.find(v => `${type}-${v.id}` === key).name }, m, fn, c, key === type, key === type ? {} : { variantOf: type });
+        if (k && cfg.overlay) models.get(k).markup = cfg.overlay(models.get(k).markup);
+        if (k) STYLE[k] = { s: (STYLE[src] || DEF_STYLE).s, c }; };
+      if (cfg.from) wrap(type, cfg.base.fn, cfg.base.c);
+      cfg.list.forEach(v => wrap(`${type}-${v.id}`, v.fn, v.c));
     });
   }
   const variantsOf = type => VARIANTS[type]
@@ -246,7 +260,7 @@ const Flowers = (() => {
      individually touchable and GPU-animated) -> front SVG (wrapping paper / vessel front).
      Nothing is capped or clipped: every flower gets its own spot, and the view is an overflow-visible HTML box. */
   function scene(items, focus = false, container = '') {
-    const L = items.filter(i => TYPES[i.type] && i.type !== 'letter' && i.qty > 0);
+    const L = items.filter(i => TYPES[i.type] && !TYPES[i.type].special && i.type !== 'letter' && i.qty > 0);
     if (!L.length) return '';
     const id = ++sceneId, rand = rng(7 + id * 13 % 97);
     const flowers = L.filter(i => kindOf(i.type) !== 'cactus'), cacti = L.filter(i => kindOf(i.type) === 'cactus');

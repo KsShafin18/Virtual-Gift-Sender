@@ -45,6 +45,8 @@ function init() {
     const title = el('h3', '', f.name), sw = el('div', 'swatches');
     if (k === 'letter') {
       art.append(Flowers.envelopeArt());
+    } else if (f.special) {
+      art.innerHTML = Specials.art(k, '', true);
     } else {
       art.innerHTML = Flowers.scene([{ type: k, qty: 1 }], true);
     }
@@ -74,13 +76,15 @@ function init() {
         $('#nt').checked = false;
         $('#note').value = '';
         $('#nw').hidden = true;
+      } else if (f.special) {
+        cart[k] = 1;
       } else {
         set(+inp.value); cart[cur] = (cart[cur] || 0) + pick[k];
       }
       renderAll();
-      toast(k === 'letter' ? 'Letter selected' : pick[k] + ' × ' + Flowers.TYPES[cur].name + ' added');
+      toast(k === 'letter' ? 'Letter selected' : f.special ? f.name + ' added' : pick[k] + ' × ' + Flowers.TYPES[cur].name + ' added');
     };
-    if (k !== 'letter') q.append(m, inp, p);
+    if (k !== 'letter' && !f.special) q.append(m, inp, p);
     c.append(badge, art, title, ...(vs.length > 1 ? [sw] : []), el('p', 'muted', f.desc), q, add); $('#cards').append(c);
   });
   $('#nt').onchange = () => { $('#nw').hidden = !$('#nt').checked || hasLetter(); renderPreview(); };
@@ -114,9 +118,10 @@ function renderAll() {
     if (dot) { const d = el('i', 'sw-dot'); d.style.setProperty('--c', dot.swatch); nm.prepend(d); }
     r.append(nm);
     m.onclick = () => { if (cart[i.type] > 1) cart[i.type]--; else delete cart[i.type]; renderAll(); };
-    p.onclick = () => { if (i.type !== 'letter') cart[i.type]++; renderAll(); };
+    const single = i.type === 'letter' || Flowers.TYPES[i.type].special;
+    p.onclick = () => { if (!single) cart[i.type]++; renderAll(); };
     x.onclick = () => { delete cart[i.type]; renderAll(); };
-    if (i.type === 'letter') r.append(el('span', 'qty-label', '×1'));
+    if (single) r.append(el('span', 'qty-label', '×1'));
     else r.append(m, el('b', '', String(i.qty)), p);
     r.append(x); L.append(r);
   });
@@ -126,9 +131,10 @@ function renderAll() {
 function renderPreview() {
   const a = items(), box = $('#pv');
   if (!a.length) { box.replaceChildren(el('p', 'muted', 'Your gift preview will appear here.')); return; }
-  const bouquet = a.filter(i => i.type !== 'letter');
+  const bouquet = a.filter(i => i.type !== 'letter' && !Flowers.TYPES[i.type].special), sp = a.filter(i => Flowers.TYPES[i.type].special);
   box.replaceChildren();
   if (bouquet.length) box.innerHTML = Flowers.scene(bouquet);
+  if (sp.length) box.insertAdjacentHTML('beforeend', Specials.row(sp.map(i => i.type)));
   if (hasLetter() && letterText()) box.append(Flowers.envelope(envelope => Letter.open(letterText(), {
     kind: 'letter',
     onKeep: () => { envelope.classList.add('kept'); envelope.querySelector('small').textContent = 'Kept for you'; },
@@ -187,7 +193,7 @@ function renderGifts() {
 }
 
 Fx.start();
-Flowers.loadModels().then(() => { Flowers.enableTouch($('#cards')); Flowers.enableTouch($('#pv')); }).then(route).catch(error => {
+Flowers.loadModels().then(() => { Specials.register(); Flowers.enableTouch($('#cards')); Flowers.enableTouch($('#pv')); Specials.enableTouch($('#cards')); Specials.enableTouch($('#pv')); }).then(route).catch(error => {
   console.error('Flower models could not be initialized.', error);
   $('#login').hidden = true;
   $('#app').hidden = true;

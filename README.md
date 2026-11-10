@@ -22,3 +22,12 @@ private information out of gift notes or letters.
 
 The dashboard's gift history and demo login are stored in the browser's LocalStorage. Older `?id=...`
 links still work in the browser where their gift was created; newly generated links are portable.
+
+## Special gifts, colour variants and caching
+
+- `specials.js` holds the Magic Moon, Dancing Couple Snow Globe and Kidney Gift (inline SVG + CSS motion). Their receiver options
+  (`extra` in the saved receiver state) are validated in `storage.js`.
+- `flowers.js` derives colour variants at load time (`VARIANTS`): rose colours and the carved-wood roses (Natural, Red, Pink,
+  Yellow, White, Black). Each variant is a normal hidden type such as `rose-yellow` or `wood-rose-pink`.
+- Script/CSS tags carry `?v=4` and `vercel.json` sends `Cache-Control: no-cache`, so a redeploy never mixes old and new files.
+  Bump the number when you change a script.

@@ -131,3 +131,46 @@ textarea{resize:vertical;font-family:'Hind Siliguri',Poppins,sans-serif}
 .sw-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c);border:1.5px solid rgba(255,255,255,.55);margin-right:7px;vertical-align:-1px}
 .art.swap .bq{animation:sw-pop .38s cubic-bezier(.22,1,.36,1)}
 @keyframes sw-pop{from{opacity:.2;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* ===== Special gifts: moon, snow globe, kidney (small SVGs, CSS-only motion) ===== */
+.sp{position:relative;display:block;cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.sp-svg{display:block;width:100%;height:100%;overflow:visible}
+.art .sp{height:100%}.art .sp-svg{width:auto;max-width:100%;margin:0 auto}
+.sp:focus-visible .sp-svg{filter:drop-shadow(0 0 6px #fff)}
+.sp-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:12px;margin-top:6px}
+.pv .sp-row .sp{width:140px}
+.halo{transform-box:fill-box;transform-origin:center;animation:sp-glow 4.2s ease-in-out infinite}
+.shine{opacity:0;transition:opacity .45s}
+.sp.boost .shine{opacity:.5}
+.sp.boost .sp-svg{filter:drop-shadow(0 0 16px rgba(255,236,160,.95)) brightness(1.1)}
+.sp.boost .halo{animation:sp-boost 1.8s ease-out}
+.tw{transform-box:fill-box;transform-origin:center;animation:sp-tw 3s ease-in-out infinite}.t2{animation-delay:-1s}.t3{animation-delay:-2s}
+.rot{animation:sp-rot 14s linear infinite}
+.couple{transform-origin:100px 172px}.gown{transform-origin:112px 118px}
+.sp-svg .couple,.sp-svg .gown,.sp-svg .sf{animation-play-state:paused}
+.sp-svg .couple{animation:sp-dance 5s ease-in-out infinite}
+.sp-svg .gown{animation:sp-flare 2.5s ease-in-out infinite}
+.sp-svg .sf{animation:sp-fall 5s linear infinite}
+.sp-svg.playing .couple,.sp-svg.playing .gown,.sp-svg.playing .sf{animation-play-state:running}
+.gsp{opacity:.35;transition:opacity .6s}.sp-svg.playing .gsp{opacity:1}
+.sp.shake .sp-svg{animation:sp-shake .6s ease}
+.blood{opacity:0}.drip{opacity:0}
+.sp.bleed .blood{animation:sp-bleed 2.8s ease-out}
+.sp.bleed .drip{animation:sp-drip 1.6s ease-in forwards}
+.sp.bleed .kid-body{animation:sp-beat .6s ease-in-out 3}
+.sp-msg{position:absolute;left:50%;bottom:calc(100% - 6px);width:max-content;max-width:190px;transform:translateX(-50%);padding:8px 12px;border:0;border-radius:14px;background:#fff0f7;color:#6b0f3a;font:500 .78rem/1.3 Poppins,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 18px rgba(255,47,146,.55);animation:sp-msg .5s cubic-bezier(.2,1.4,.4,1) both}
+.sp-msg::after{content:"";position:absolute;left:50%;top:100%;margin-left:-6px;border:6px solid transparent;border-top-color:#fff0f7}
+.moon-feet{position:relative;width:80%;flex:none}
+.sp-wrap{position:relative}
+@keyframes sp-glow{0%,100%{opacity:.6;transform:scale(.94)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes sp-boost{0%{opacity:1;transform:scale(1)}30%{opacity:1;transform:scale(1.6)}100%{opacity:1;transform:scale(1.06)}}
+@keyframes sp-tw{0%,100%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes sp-rot{to{transform:translateX(-92px)}}
+@keyframes sp-dance{0%,100%{transform:translateX(-6px) rotate(-3deg) scaleX(1)}25%{transform:translateX(0) translateY(-3px) rotate(0) scaleX(.9)}50%{transform:translateX(6px) rotate(3deg) scaleX(.84)}75%{transform:translateX(0) translateY(-3px) rotate(0) scaleX(.9)}}
+@keyframes sp-flare{0%,100%{transform:scaleX(.93) skewX(-2deg)}50%{transform:scaleX(1.1) skewX(3deg)}}
+@keyframes sp-fall{from{transform:translateY(0)}to{transform:translateY(150px)}}
+@keyframes sp-shake{20%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}80%{transform:rotate(-1.5deg)}}
+@keyframes sp-bleed{0%{opacity:0;transform:scale(.5)}20%{opacity:1;transform:scale(1)}75%{opacity:.85;transform:scale(1.08)}100%{opacity:0;transform:scale(1.15)}}
+@keyframes sp-drip{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(115px)}}
+@keyframes sp-beat{50%{transform:scale(1.05)}}
+@keyframes sp-msg{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.8)}}
