@@ -10,6 +10,8 @@ const items = () => Object.keys(cart).map(k => ({ type: k, qty: cart[k] }));
 const count = a => a.reduce((s, i) => s + i.qty, 0);
 const fname = a => a.map(i => Flowers.TYPES[i.type] ? Flowers.TYPES[i.type].name : i.type).join(', ');
 const hasLetter = () => Boolean(cart.letter);
+const VO = k => Specials.variantsOf(k) || Flowers.variantsOf(k);
+let delivery = 'default', bq = { ...Bouquet.DEFAULT };
 const noteText = () => !hasLetter() && $('#nt').checked ? $('#note').value.trim() : '';
 const letterText = () => hasLetter() ? $('#letterText').value.trim() : '';
 function toast(m) { const t = $('#toast'); t.textContent = m; t.hidden = false; clearTimeout(toast.t); toast.t = setTimeout(() => t.hidden = true, 2200); }
@@ -41,22 +43,24 @@ function init() {
   Object.keys(Flowers.TYPES).forEach(k => {
     const f = Flowers.TYPES[k]; pick[k] = 1;
     const c = el('article', 'card glass'), art = el('div', 'art'), badge = el('span', 'badge'), inp = el('input');
-    const vs = Flowers.variantsOf(k); let cur = k;            // cur = the colour (type key) this card currently adds
+    const vs = VO(k); let cur = k;            // cur = the colour (type key) this card currently adds
     const title = el('h3', '', f.name), sw = el('div', 'swatches');
     if (k === 'letter') {
       art.append(Flowers.envelopeArt());
+    } else if (f.special) {
+      art.innerHTML = Specials.art(k, '', true);
     } else {
       art.innerHTML = Flowers.scene([{ type: k, qty: 1 }], true);
     }
     if (vs.length > 1) {
       sw.setAttribute('role', 'group'); sw.setAttribute('aria-label', f.name + ' colour');
       vs.forEach(v => {
-        const b = el('button', 'sw'); b.type = 'button'; b.title = v.label; b.style.setProperty('--c', v.swatch);
+        const b = el('button', v.thumb ? 'sw ph' : 'sw'); b.type = 'button'; b.title = v.label; b.style.setProperty('--c', v.swatch || '#fff'); if (v.thumb) b.innerHTML = v.thumb;
         b.setAttribute('aria-label', v.label + ' ' + f.name.toLowerCase()); b.setAttribute('aria-pressed', String(v.key === cur));
         b.onclick = () => {
           if (cur === v.key) return;
           cur = v.key; sw.querySelectorAll('.sw').forEach(x => x.setAttribute('aria-pressed', String(x === b)));
-          art.innerHTML = Flowers.scene([{ type: cur, qty: 1 }], true);
+          art.innerHTML = f.special ? Specials.art(cur, '', true) : Flowers.scene([{ type: cur, qty: 1 }], true);
           art.classList.remove('swap'); void art.offsetWidth; art.classList.add('swap');
           title.textContent = Flowers.TYPES[cur].name;
         };
@@ -74,13 +78,15 @@ function init() {
         $('#nt').checked = false;
         $('#note').value = '';
         $('#nw').hidden = true;
+      } else if (f.special) {
+        vs.forEach(v => delete cart[v.key]); cart[cur] = 1;
       } else {
         set(+inp.value); cart[cur] = (cart[cur] || 0) + pick[k];
       }
       renderAll();
-      toast(k === 'letter' ? 'Letter selected' : pick[k] + ' × ' + Flowers.TYPES[cur].name + ' added');
+      toast(k === 'letter' ? 'Letter selected' : f.special ? f.name + ' added' : pick[k] + ' × ' + Flowers.TYPES[cur].name + ' added');
     };
-    if (k !== 'letter') q.append(m, inp, p);
+    if (k !== 'letter' && !f.special) q.append(m, inp, p);
     c.append(badge, art, title, ...(vs.length > 1 ? [sw] : []), el('p', 'muted', f.desc), q, add); $('#cards').append(c);
   });
   $('#nt').onchange = () => { $('#nw').hidden = !$('#nt').checked || hasLetter(); renderPreview(); };
@@ -91,7 +97,7 @@ function init() {
     if (!a.length) return toast('Add at least one gift first');
     if (hasLetter() && !letterText()) return toast('Add text to your letter first');
     const recipient = $('#recipient').value.trim();
-    const g = Store.create(a, noteText(), letterText(), recipient);
+    const g = Store.create(a, noteText(), letterText(), recipient, { delivery, bouquet: bouquetOn(a) ? bq : undefined });
     $('#recipient').value = '';
     renderGifts(); showQR(g);
   };
@@ -102,7 +108,7 @@ function init() {
 /* ---- Cart + preview ---- */
 function renderAll() {
   const a = items(), L = $('#cart');
-  Object.keys(Flowers.TYPES).forEach(k => { const b = $('#b-' + k), n = Flowers.variantsOf(k).reduce((s, v) => s + (cart[v.key] || 0), 0); if (b) { b.hidden = !n; b.textContent = '×' + n; } });
+  Object.keys(Flowers.TYPES).forEach(k => { const b = $('#b-' + k), n = VO(k).reduce((s, v) => s + (cart[v.key] || 0), 0); if (b) { b.hidden = !n; b.textContent = '×' + n; } });
   $('#nt').closest('.tg').hidden = hasLetter();
   $('#nw').hidden = hasLetter() || !$('#nt').checked;
   $('#letterWriter').hidden = !hasLetter();
@@ -110,25 +116,27 @@ function renderAll() {
   if (!a.length) L.append(el('p', 'muted', 'Your gift is empty. Choose a gift to get started.'));
   a.forEach(i => {
     const r = el('div', 'row'), m = el('button', 'sq', '−'), p = el('button', 'sq', '+'), x = el('button', 'sq', '✕');
-    const dot = Flowers.TYPES[i.type].variantOf || Flowers.variantsOf(i.type).length > 1 ? Flowers.variantsOf(Flowers.TYPES[i.type].variantOf || i.type).find(v => v.key === i.type) : null, nm = el('span', '', Flowers.TYPES[i.type].name);
-    if (dot) { const d = el('i', 'sw-dot'); d.style.setProperty('--c', dot.swatch); nm.prepend(d); }
+    const root = Flowers.TYPES[i.type].variantOf || i.type, dot = Flowers.TYPES[i.type].variantOf && !Flowers.TYPES[i.type].special ? VO(root).find(v => v.key === i.type) : null, nm = el('span', '', Flowers.TYPES[i.type].name);
+    if (dot && dot.swatch) { const d = el('i', 'sw-dot'); d.style.setProperty('--c', dot.swatch); nm.prepend(d); }
     r.append(nm);
     m.onclick = () => { if (cart[i.type] > 1) cart[i.type]--; else delete cart[i.type]; renderAll(); };
-    p.onclick = () => { if (i.type !== 'letter') cart[i.type]++; renderAll(); };
+    const single = i.type === 'letter' || Flowers.TYPES[i.type].special;
+    p.onclick = () => { if (!single) cart[i.type]++; renderAll(); };
     x.onclick = () => { delete cart[i.type]; renderAll(); };
-    if (i.type === 'letter') r.append(el('span', 'qty-label', '×1'));
+    if (single) r.append(el('span', 'qty-label', '×1'));
     else r.append(m, el('b', '', String(i.qty)), p);
     r.append(x); L.append(r);
   });
   $('#tot').textContent = '(' + count(a) + (count(a) === 1 ? ' gift item' : ' gift items') + ')';
-  renderPreview();
+  renderPreview(); renderBouquetPanel();
 }
 function renderPreview() {
   const a = items(), box = $('#pv');
   if (!a.length) { box.replaceChildren(el('p', 'muted', 'Your gift preview will appear here.')); return; }
-  const bouquet = a.filter(i => i.type !== 'letter');
+  const bouquet = a.filter(i => i.type !== 'letter' && !Flowers.TYPES[i.type].special), sp = a.filter(i => Flowers.TYPES[i.type].special);
   box.replaceChildren();
-  if (bouquet.length) box.innerHTML = Flowers.scene(bouquet);
+  if (bouquet.length) box.innerHTML = Flowers.scene(bouquet, false, '', bouquetOn(a) ? bq : null);
+  if (sp.length) box.insertAdjacentHTML('beforeend', Specials.row(sp.map(i => i.type)));
   if (hasLetter() && letterText()) box.append(Flowers.envelope(envelope => Letter.open(letterText(), {
     kind: 'letter',
     onKeep: () => { envelope.classList.add('kept'); envelope.querySelector('small').textContent = 'Kept for you'; },
@@ -187,7 +195,7 @@ function renderGifts() {
 }
 
 Fx.start();
-Flowers.loadModels().then(() => { Flowers.enableTouch($('#cards')); Flowers.enableTouch($('#pv')); }).then(route).catch(error => {
+Flowers.loadModels().then(() => { Specials.register(); initDelivery(); Flowers.enableTouch($('#cards')); Flowers.enableTouch($('#pv')); Specials.enableTouch($('#cards')); Specials.enableTouch($('#pv')); }).then(route).catch(error => {
   console.error('Flower models could not be initialized.', error);
   $('#login').hidden = true;
   $('#app').hidden = true;
@@ -195,3 +203,49 @@ Flowers.loadModels().then(() => { Flowers.enableTouch($('#cards')); Flowers.enab
   notice.hidden = false;
   notice.querySelector('p').textContent = `Flower artwork could not be loaded. ${error.message}`;
 });
+
+/* ---- Delivery style dropdown ---- */
+function initDelivery() {
+  const sel = $('#delivery'), prev = $('#dlPrev'), L = Delivery.list();
+  sel.innerHTML = L.map(d => `<option value="${d.id}">${d.icon} ${d.label}</option>`).join('');
+  const paint = () => {
+    const d = Delivery.styles[sel.value];
+    prev.innerHTML = `<div class="dl-thumb dl-t-${sel.value}">${d.thumb}</div><div><b>${d.label}</b><p>${d.desc}</p></div>`;
+    prev.classList.remove('swap'); void prev.offsetWidth; prev.classList.add('swap');
+  };
+  sel.onchange = () => { delivery = sel.value; paint(); };
+  paint();
+}
+
+/* ---- Bouquet design picker (only when more than one flower is chosen) ---- */
+const flowerCount = a => a.filter(i => i.type !== 'letter' && !Flowers.TYPES[i.type].special && Flowers.kindOf(i.type) !== 'cactus').reduce((s, i) => s + i.qty, 0);
+const bouquetOn = a => flowerCount(a) >= 2;
+let bqSig = '';
+function renderBouquetPanel() {
+  const panel = $('#bqPanel'), a = items(), on = bouquetOn(a);
+  panel.hidden = !on;
+  if (!on) { bqSig = ''; return; }
+  $('#bqSum').textContent = Bouquet.STYLES.find(s => s.id === bq.style).label + (bq.wrap === 'paper' ? ' · wrapped' : ' · ribbon only');
+  if (!panel.open) { bqSig = ''; return; }
+  const flowers = a.filter(i => i.type !== 'letter' && !Flowers.TYPES[i.type].special && Flowers.kindOf(i.type) !== 'cactus');
+  const per = Math.max(1, Math.ceil(9 / flowers.length)), sample = flowers.map(i => ({ type: i.type, qty: per }));
+  const sig = JSON.stringify([sample, bq.wrap, bq.wrapStyle, bq.paper, bq.ribbon, bq.ribbonStyle]);
+  const body = $('#bqBody'), seg = (name, list, cur) => `<div class="seg" role="group" aria-label="${name}">${list.map(x => `<button type="button" data-k="${name}" data-v="${x.id}" aria-pressed="${x.id === cur}">${x.label}</button>`).join('')}</div>`;
+  const sw = (name, list, cur) => `<div class="sws" role="group" aria-label="${name}">${list.map(x => `<button type="button" class="sw" data-k="${name}" data-v="${x.id}" title="${x.label}" aria-label="${x.label}" aria-pressed="${x.id === cur}" style="--c:${x.sw}"></button>`).join('')}</div>`;
+  if (sig !== bqSig) {                                              // thumbnails use the real artwork with the chosen flowers
+    bqSig = sig;
+    body.innerHTML = `<div class="bq-grid" role="radiogroup" aria-label="Bouquet style">${Bouquet.STYLES.map(s => `<button type="button" class="bq-card" role="radio" data-k="style" data-v="${s.id}" aria-checked="${s.id === bq.style}" title="${s.desc}"><span class="bq-th">${Flowers.scene(sample, false, '', { ...bq, style: s.id }, true)}</span><b>${s.label}</b></button>`).join('')}</div>` +
+      `<div class="bq-row"><span>Presentation</span>${seg('wrap', [{ id: 'paper', label: 'Wrapped' }, { id: 'ribbon', label: 'Ribbon only' }], bq.wrap)}</div>` +
+      (bq.wrap === 'paper' ? `<div class="bq-row"><span>Paper</span>${sw('paper', Bouquet.PAPERS, bq.paper)}</div><div class="bq-row"><span>Wrap style</span>${seg('wrapStyle', Bouquet.WRAPS, bq.wrapStyle)}</div>` : '') +
+      `<div class="bq-row"><span>Ribbon</span>${sw('ribbon', Bouquet.RIBBONS, bq.ribbon)}</div><div class="bq-row"><span>Ribbon style</span>${seg('ribbonStyle', Bouquet.RSTYLES, bq.ribbonStyle)}</div>`;
+  } else {
+    body.querySelectorAll('[data-k=style]').forEach(c => c.setAttribute('aria-checked', String(c.dataset.v === bq.style)));
+  }
+}
+document.addEventListener('click', e => {
+  const b = e.target.closest('#bqBody [data-k]'); if (!b) return;
+  bq = { ...bq, [b.dataset.k]: b.dataset.v }; bqSig = bq.wrap === 'paper' || b.dataset.k === 'wrap' ? '' : bqSig;
+  if (b.dataset.k === 'style') bqSig = bqSig;      // style change keeps thumbnails, only the selection moves
+  renderBouquetPanel(); renderPreview();
+});
+$('#bqPanel').addEventListener('toggle', () => { bqSig = ''; renderBouquetPanel(); });

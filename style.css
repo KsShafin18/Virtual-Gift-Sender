@@ -131,3 +131,179 @@ textarea{resize:vertical;font-family:'Hind Siliguri',Poppins,sans-serif}
 .sw-dot{display:inline-block;width:11px;height:11px;border-radius:50%;background:var(--c);border:1.5px solid rgba(255,255,255,.55);margin-right:7px;vertical-align:-1px}
 .art.swap .bq{animation:sw-pop .38s cubic-bezier(.22,1,.36,1)}
 @keyframes sw-pop{from{opacity:.2;transform:scale(.9)}to{opacity:1;transform:scale(1)}}
+
+/* ===== Special gifts: moon, snow globe, kidney (small SVGs, CSS-only motion) ===== */
+.sp{position:relative;display:block;cursor:pointer;outline:0;-webkit-tap-highlight-color:transparent;touch-action:manipulation;-webkit-user-select:none;user-select:none}
+.sp-svg{display:block;width:100%;height:100%;overflow:visible}
+.art .sp{height:100%}.art .sp-svg{width:auto;max-width:100%;margin:0 auto}
+.sp:focus-visible .sp-svg{filter:drop-shadow(0 0 6px #fff)}
+.sp-row{display:flex;flex-wrap:wrap;justify-content:center;align-items:flex-end;gap:12px;margin-top:6px}
+.pv .sp-row .sp{width:140px}
+.halo{transform-box:fill-box;transform-origin:center;animation:sp-glow 4.2s ease-in-out infinite}
+.shine{opacity:0;transition:opacity .45s}
+.sp.boost .shine{opacity:.5}
+.sp.boost .sp-svg{filter:drop-shadow(0 0 16px rgba(255,236,160,.95)) brightness(1.1)}
+.sp.boost .halo{animation:sp-boost 1.8s ease-out}
+.tw{transform-box:fill-box;transform-origin:center;animation:sp-tw 3s ease-in-out infinite}.t2{animation-delay:-1s}.t3{animation-delay:-2s}
+.rot{animation:sp-rot 14s linear infinite}
+.couple{transform-origin:100px 172px}.gown{transform-origin:112px 118px}
+.sp-svg .couple,.sp-svg .gown,.sp-svg .sf{animation-play-state:paused}
+.sp-svg .couple{animation:sp-dance 5s ease-in-out infinite}
+.sp-svg .gown{animation:sp-flare 2.5s ease-in-out infinite}
+.sp-svg .sf{animation:sp-fall 5s linear infinite}
+.sp-svg.playing .couple,.sp-svg.playing .gown,.sp-svg.playing .sf{animation-play-state:running}
+.gsp{opacity:.35;transition:opacity .6s}.sp-svg.playing .gsp{opacity:1}
+.sp.shake .sp-svg{animation:sp-shake .6s ease}
+.blood{opacity:0}.drip{opacity:0}
+.sp.bleed .blood{animation:sp-bleed 2.8s ease-out}
+.sp.bleed .drip{animation:sp-drip 1.6s ease-in forwards}
+.sp.bleed .kid-body{animation:sp-beat .6s ease-in-out 3}
+.sp-msg{position:absolute;left:50%;bottom:calc(100% - 6px);width:max-content;max-width:190px;transform:translateX(-50%);padding:8px 12px;border:0;border-radius:14px;background:#fff0f7;color:#6b0f3a;font:500 .78rem/1.3 Poppins,sans-serif;text-align:center;cursor:pointer;box-shadow:0 0 18px rgba(255,47,146,.55);animation:sp-msg .5s cubic-bezier(.2,1.4,.4,1) both}
+.sp-msg::after{content:"";position:absolute;left:50%;top:100%;margin-left:-6px;border:6px solid transparent;border-top-color:#fff0f7}
+.moon-feet{position:relative;width:80%;flex:none}
+.sp-wrap{position:relative}
+@keyframes sp-glow{0%,100%{opacity:.6;transform:scale(.94)}50%{opacity:1;transform:scale(1.06)}}
+@keyframes sp-boost{0%{opacity:1;transform:scale(1)}30%{opacity:1;transform:scale(1.6)}100%{opacity:1;transform:scale(1.06)}}
+@keyframes sp-tw{0%,100%{opacity:.2;transform:scale(.6)}50%{opacity:1;transform:scale(1.1)}}
+@keyframes sp-rot{to{transform:translateX(-92px)}}
+@keyframes sp-dance{0%,100%{transform:translateX(-6px) rotate(-3deg) scaleX(1)}25%{transform:translateX(0) translateY(-3px) rotate(0) scaleX(.9)}50%{transform:translateX(6px) rotate(3deg) scaleX(.84)}75%{transform:translateX(0) translateY(-3px) rotate(0) scaleX(.9)}}
+@keyframes sp-flare{0%,100%{transform:scaleX(.93) skewX(-2deg)}50%{transform:scaleX(1.1) skewX(3deg)}}
+@keyframes sp-fall{from{transform:translateY(0)}to{transform:translateY(150px)}}
+@keyframes sp-shake{20%{transform:rotate(-3deg)}50%{transform:rotate(3deg)}80%{transform:rotate(-1.5deg)}}
+@keyframes sp-bleed{0%{opacity:0;transform:scale(.5)}20%{opacity:1;transform:scale(1)}75%{opacity:.85;transform:scale(1.08)}100%{opacity:0;transform:scale(1.15)}}
+@keyframes sp-drip{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(115px)}}
+@keyframes sp-beat{50%{transform:scale(1.05)}}
+@keyframes sp-msg{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.8)}}
+
+/* ===== Confirmation dialog ===== */
+.confirm-ov{animation:cf-in .22s ease both}.confirm-ov.out{animation:cf-out .22s ease both}
+.confirm-box{animation:cf-pop .35s cubic-bezier(.2,1.2,.4,1) both;border-color:rgba(255,47,146,.55)}
+.confirm-box h2{font-size:2rem;margin-top:2px}.confirm-box p{line-height:1.5;opacity:.9}
+.cf-icon{font-size:2rem;filter:drop-shadow(0 0 10px var(--pk))}
+.cf-btns{display:flex;gap:10px;margin-top:16px}.cf-btns .btn{flex:1;margin:0}
+.btn.danger{background:linear-gradient(135deg,#ff3b6b,#a0103f);box-shadow:0 0 18px rgba(255,59,107,.5)}
+@keyframes cf-in{from{opacity:0}}@keyframes cf-out{to{opacity:0}}
+@keyframes cf-pop{from{opacity:0;transform:translateY(14px) scale(.9)}}
+
+/* ===== Flower selection + actions ===== */
+.bloom{position:relative}
+.fl.selected::after{content:"";position:absolute;inset:-4%;border-radius:50%;border:2px solid rgba(255,225,240,.95);box-shadow:0 0 14px var(--pk),inset 0 0 12px rgba(255,47,146,.35);pointer-events:none;animation:sel-in .35s cubic-bezier(.2,1.3,.4,1) both}
+.bq.still *{animation:none!important}
+.dew-layer{position:absolute;inset:0;pointer-events:none}
+.dew{position:absolute;width:var(--s);aspect-ratio:1;border-radius:50%;transform:translate(-50%,-50%) scale(0);opacity:0;animation:dew-in .5s cubic-bezier(.3,1.5,.5,1) forwards;
+ background:radial-gradient(circle at 32% 28%,#fff 0 16%,rgba(210,234,255,.8) 36%,rgba(130,180,235,.4) 68%,rgba(90,140,200,.18));box-shadow:inset 0 -1px 1px rgba(40,90,160,.35),0 1px 1.5px rgba(0,0,0,.3)}
+.dew::after{content:"";position:absolute;left:24%;top:20%;width:30%;height:30%;border-radius:50%;background:#fff;animation:dew-glint 2.8s ease-in-out var(--g,0s) infinite}
+.sp-drop,.sp-mist{position:absolute;pointer-events:none;will-change:transform,opacity;z-index:998}
+.sp-drop{width:var(--z);height:calc(var(--z)*1.5);border-radius:50% 50% 50% 50%/60% 60% 40% 40%;background:linear-gradient(#fff,#a8d4ff);box-shadow:0 0 4px rgba(170,215,255,.9)}
+.sp-mist{border-radius:50%;background:radial-gradient(circle,rgba(220,238,255,.7),rgba(190,220,255,.2) 55%,transparent 72%)}
+@keyframes sel-in{from{opacity:0;transform:scale(.82)}}
+@keyframes dew-in{to{opacity:1;transform:translate(-50%,-50%) scale(1)}}
+@keyframes dew-glint{0%,60%,100%{opacity:.2;transform:scale(.6)}75%{opacity:1;transform:scale(1.25)}}
+
+/* heart kidney */
+.hk-body{animation:hk-beat 1.7s ease-in-out infinite;transform-origin:0 0}
+.sp.beat .hk-body{animation-duration:.62s}
+.hk-ring{opacity:0;transform-box:fill-box;transform-origin:center}
+.sp.beat .hk-ring{animation:hk-ring 1.2s ease-out infinite}.sp.beat .hk-ring.r2{animation-delay:.6s}
+@keyframes hk-beat{0%,100%{transform:scale(1)}14%{transform:scale(1.06)}28%{transform:scale(1)}42%{transform:scale(1.035)}56%{transform:scale(1)}}
+@keyframes hk-ring{0%{opacity:.7;transform:scale(.8)}100%{opacity:0;transform:scale(1.7)}}
+
+/* ===== Love birds ===== */
+.lb-svg .lb-bodyg{animation:lb-bob 3.2s ease-in-out infinite}
+.lb-svg .lb-head{transform-origin:2px -42px;animation:lb-look 6s ease-in-out infinite}
+.lb-svg .lbw.b .lb-head{animation-delay:-2.4s}.lb-svg .lbw.b .lb-bodyg{animation-delay:-1.1s}
+.lb-svg .lb-tail{transform-origin:-10px -8px;animation:lb-tail 2.4s ease-in-out infinite}
+.lb-svg .lb-eye{transform-origin:13px -51px;animation:lb-blink 5.2s infinite}.lbw.b .lb-eye{animation-delay:-2s}
+.lb-svg .lb-bk-up{transform-origin:18px -47px}.lb-svg .lb-bk-dn{transform-origin:18px -43px}
+.lb-svg .lb-swing{transform-origin:120px 78px;animation:lb-swing 3.4s ease-in-out infinite}
+.lb-svg .lb-hearts{opacity:0}.lb-h{transform-box:fill-box;transform-origin:center}
+.lb-svg .lb-door{transform-origin:104px 188px;transition:transform .9s cubic-bezier(.4,0,.2,1)}
+.lb-svg .lb-door.open,.sp-lovebirds.st-release .lb-door{transform:scaleX(.16) skewY(-8deg)}
+.lb-note{font:700 14px Poppins,sans-serif;transform-box:fill-box;animation:lb-note 1.7s ease-out forwards}
+.lb-seed{animation:lb-seed 1.1s cubic-bezier(.5,0,.9,.5) var(--d) both,lb-seedgone .5s ease var(--e) forwards}
+.lb-fly{position:fixed;z-index:9999;pointer-events:none;will-change:transform,opacity}
+.lb-fly svg{width:100%;height:100%;overflow:visible}
+.fw-wing{transform-box:fill-box;transform-origin:30% 100%;animation:fw-flap .17s ease-in-out infinite alternate}.fw-wing.back{animation-delay:-.08s}
+.fw-tail{transform-box:fill-box;transform-origin:100% 50%;animation:fw-tail .34s ease-in-out infinite alternate}
+.lb-feather{position:fixed;z-index:9998;pointer-events:none;font-size:15px}
+/* romantic: they lean together, beaks touch, hearts rise */
+.sp-lovebirds.st-romantic .lb{animation:lb-kiss 4.2s ease-in-out both}
+.sp-lovebirds.st-romantic .lb-head{animation:lb-kiss-head 4.2s ease-in-out both}
+.sp-lovebirds.st-romantic .lb-bk-up{animation:lb-bk-up .5s ease-in-out 1.3s 3}.sp-lovebirds.st-romantic .lb-bk-dn{animation:lb-bk-dn .5s ease-in-out 1.3s 3}
+.sp-lovebirds.st-romantic .lb-hearts{animation:lb-show 3s ease 1.1s both}.sp-lovebirds.st-romantic .lb-h{animation:lb-heart 1.6s ease-out infinite}
+/* feed: seeds fall, both hop down, peck, hop back */
+.sp-lovebirds.st-feed .lb{animation:lb-feed 6s ease-in-out both}
+.sp-lovebirds.st-feed .lb-head{animation:lb-peck .55s ease-in-out 1.6s 6}.sp-lovebirds.st-feed .lbw.b .lb-head{animation-delay:1.9s}
+.sp-lovebirds.st-feed .lb-bk-up{animation:lb-bk-up .55s ease-in-out 1.6s 6}.sp-lovebirds.st-feed .lb-bk-dn{animation:lb-bk-dn .55s ease-in-out 1.6s 6}
+/* sing: call and response, then a duet */
+.sp-lovebirds.st-sing .lbw.a .lb-bk-up,.sp-lovebirds.st-sing .lbw.a .lb-bk-dn{animation:lb-bk-up .28s ease-in-out .3s 6,lb-bk-up .28s ease-in-out 4s 5}
+.sp-lovebirds.st-sing .lbw.a .lb-bk-dn{animation:lb-bk-dn .28s ease-in-out .3s 6,lb-bk-dn .28s ease-in-out 4s 5}
+.sp-lovebirds.st-sing .lbw.b .lb-bk-up{animation:lb-bk-up .28s ease-in-out 2.1s 6,lb-bk-up .28s ease-in-out 4s 5}
+.sp-lovebirds.st-sing .lbw.b .lb-bk-dn{animation:lb-bk-dn .28s ease-in-out 2.1s 6,lb-bk-dn .28s ease-in-out 4s 5}
+.sp-lovebirds.st-sing .lbw.a .lb-head{animation:lb-sing-head .56s ease-in-out .3s 3,lb-sing-head .56s ease-in-out 4s 3}
+.sp-lovebirds.st-sing .lbw.b .lb-head{animation:lb-sing-head .56s ease-in-out 2.1s 3,lb-sing-head .56s ease-in-out 4s 3}
+.sp-lovebirds.st-sing .lbw.a .lb-bodyg{animation:lb-puff .56s ease-in-out .3s 3}.sp-lovebirds.st-sing .lbw.b .lb-bodyg{animation:lb-puff .56s ease-in-out 2.1s 3}
+.sp-lovebirds.st-hop .lb{animation:lb-hop .6s ease-out}
+/* release: hop to the open door */
+.sp-lovebirds.st-release .lbw.a .lb{animation:lb-exit 1.4s ease-in-out both}.sp-lovebirds.st-release .lbw.b .lb{animation:lb-exit 1.4s ease-in-out .15s both}
+@keyframes lb-bob{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-1.2px) scale(1.02,.99)}}
+@keyframes lb-look{0%,100%{transform:rotate(-3deg)}35%{transform:rotate(5deg)}60%{transform:rotate(-1deg)}80%{transform:rotate(4deg)}}
+@keyframes lb-tail{0%,100%{transform:rotate(-3deg)}50%{transform:rotate(5deg)}}
+@keyframes lb-blink{0%,94%,100%{transform:scaleY(1)}96.5%{transform:scaleY(.08)}}
+@keyframes lb-swing{0%,100%{transform:rotate(-5deg)}50%{transform:rotate(5deg)}}
+@keyframes lb-kiss{0%{transform:translate(0,0)}22%,76%{transform:translate(9px,-1px)}100%{transform:translate(0,0)}}
+@keyframes lb-kiss-head{0%{transform:rotate(0)}24%,76%{transform:rotate(-4deg)}100%{transform:rotate(0)}}
+@keyframes lb-bk-up{50%{transform:rotate(-15deg)}}@keyframes lb-bk-dn{50%{transform:rotate(17deg)}}
+@keyframes lb-show{0%{opacity:0}20%,80%{opacity:1}100%{opacity:0}}
+@keyframes lb-heart{0%{transform:translateY(8px) scale(.4);opacity:0}30%{opacity:1}100%{transform:translateY(-38px) scale(1);opacity:0}}
+@keyframes lb-feed{0%{transform:translate(0,0)}9%{transform:translate(3px,-18px)}17%,80%{transform:translate(7px,56px)}89%{transform:translate(3px,-16px)}100%{transform:translate(0,0)}}
+@keyframes lb-peck{0%,100%{transform:rotate(0)}45%{transform:rotate(38deg)}}
+@keyframes lb-seed{from{transform:translateY(-150px);opacity:0}15%{opacity:1}to{transform:translateY(0)}}
+@keyframes lb-seedgone{to{opacity:0;transform:translateY(2px) scale(.4)}}
+@keyframes lb-sing-head{0%,100%{transform:rotate(0)}50%{transform:rotate(-10deg)}}
+@keyframes lb-puff{50%{transform:scale(1.07,1.04)}}
+@keyframes lb-note{0%{transform:translate(0,0) scale(.6);opacity:0}20%{opacity:1}100%{transform:translate(0,-46px) scale(1.2) rotate(14deg);opacity:0}}
+@keyframes lb-hop{40%{transform:translateY(-12px)}}
+@keyframes lb-exit{0%{transform:translate(0,0)}35%{transform:translate(8px,-18px)}70%,100%{transform:translate(22px,48px)}}
+@keyframes fw-flap{from{transform:rotate(28deg) scaleY(1)}to{transform:rotate(-48deg) scaleY(.7)}}
+@keyframes fw-tail{from{transform:rotate(-6deg)}to{transform:rotate(8deg)}}
+
+/* ===== Delivery select, bouquet designer, moon phase picker ===== */
+.dl-select{position:relative;margin-top:6px}
+.dl-select select{width:100%;appearance:none;-webkit-appearance:none;padding:13px 40px 13px 14px;border:1px solid rgba(255,47,146,.4);border-radius:14px;background:rgba(20,0,18,.55);color:#fff;font:500 .95rem Poppins,sans-serif;cursor:pointer;transition:border-color .2s,box-shadow .2s}
+.dl-select select:hover{border-color:var(--pk)}.dl-select select:focus-visible{outline:2px solid var(--lp);outline-offset:2px}
+.dl-select select option{background:#2a0a24;color:#fff}
+.dl-chev{position:absolute;right:15px;top:50%;transform:translateY(-50%);pointer-events:none;color:var(--lp)}
+.dl-prev{display:flex;gap:12px;align-items:center;margin-top:8px;padding:10px 12px;border:1px solid rgba(255,47,146,.25);border-radius:14px;background:rgba(40,0,31,.4)}
+.dl-prev.swap{animation:sw-pop .38s cubic-bezier(.22,1,.36,1)}
+.dl-prev b{font-size:.9rem}.dl-prev p{margin:2px 0 0;font-size:.78rem;opacity:.8;line-height:1.35}
+.dl-thumb{flex:none;width:52px;height:52px;border-radius:14px;background:rgba(255,47,146,.14);display:grid;place-items:center;overflow:hidden}
+.dl-thumb svg{width:40px;height:40px}
+.dl-t-bird svg{animation:dl-fly 2.2s ease-in-out infinite}.dl-t-postbox svg{animation:dl-fly 2.6s ease-in-out infinite}
+@keyframes dl-fly{50%{transform:translateY(-3px) rotate(-3deg)}}
+.bq-panel{margin-top:10px;border:1px solid rgba(255,47,146,.3);border-radius:16px;background:rgba(40,0,31,.4);overflow:hidden}
+.bq-panel summary{display:flex;justify-content:space-between;align-items:center;gap:8px;padding:12px 14px;cursor:pointer;font:600 .92rem Poppins,sans-serif;list-style:none;min-height:46px}
+.bq-panel summary::-webkit-details-marker{display:none}
+.bq-panel summary small{font-weight:400;opacity:.75;font-size:.74rem}
+.bq-panel summary::after{content:"▾";margin-left:6px;transition:transform .25s;color:var(--lp)}
+.bq-panel[open] summary::after{transform:rotate(180deg)}
+#bqBody{padding:4px 12px 14px;animation:sw-pop .35s ease}
+.bq-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(96px,1fr));gap:8px}
+.bq-card{display:flex;flex-direction:column;align-items:center;gap:4px;padding:6px 4px 8px;border:1.5px solid rgba(255,255,255,.14);border-radius:14px;background:rgba(20,0,18,.5);color:#fff;font:600 .68rem/1.2 Poppins,sans-serif;text-align:center;cursor:pointer;touch-action:manipulation;transition:transform .25s cubic-bezier(.22,1,.36,1),border-color .2s,box-shadow .25s,background .2s}
+.bq-th{display:block;width:100%;pointer-events:none}.bq-th .bq{width:100%}
+@media(hover:hover){.bq-card:hover{transform:translateY(-2px);border-color:rgba(255,47,146,.6)}}
+.bq-card:active{transform:scale(.96)}
+.bq-card[aria-checked=true]{border-color:#fff;background:rgba(255,47,146,.2);box-shadow:0 0 16px rgba(255,47,146,.55);transform:translateY(-2px)}
+.bq-card[aria-checked=true]::after{content:"✓";position:absolute;top:4px;right:6px;font-size:.8rem;color:#fff}
+.bq-card{position:relative}
+.bq-row{display:flex;flex-wrap:wrap;align-items:center;gap:8px 12px;margin-top:10px}
+.bq-row>span{flex:0 0 86px;font:500 .74rem Poppins,sans-serif;opacity:.85}
+.seg{display:inline-flex;flex-wrap:wrap;gap:6px}
+.seg button{padding:7px 12px;border:1px solid rgba(255,47,146,.4);border-radius:99px;background:rgba(20,0,18,.5);color:#fff;font:500 .74rem Poppins,sans-serif;cursor:pointer;touch-action:manipulation;transition:background .2s,border-color .2s,transform .15s}
+.seg button[aria-pressed=true]{background:linear-gradient(135deg,#ff3b9a,#a0126a);border-color:#fff}
+.seg button:active{transform:scale(.95)}
+.sws{display:flex;flex-wrap:wrap;gap:8px}
+.swatches .sw.ph{width:40px;height:40px;border-radius:50%;background:#120d32;overflow:hidden}
+.sw.ph svg{display:block;width:100%;height:100%}
+.sw.ph[aria-pressed=true]{transform:scale(1.14)}
+@media(max-width:420px){.bq-row>span{flex-basis:100%}}
