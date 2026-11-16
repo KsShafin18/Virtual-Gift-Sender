@@ -3,7 +3,7 @@
 <meta name="viewport" content="width=device-width,initial-scale=1">
 <title>Shafin's Virtual Gift</title>
 <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600&family=Great+Vibes&family=Hind+Siliguri:wght@400;500&display=swap" rel="stylesheet">
-<link rel="stylesheet" href="style.css">
+<link rel="stylesheet" href="style.css?v=5">
 </head><body>
 <div id="fx"></div>
 <section id="startupError" class="center" hidden><div class="glass lcard"><h1 class="script">Flower models unavailable</h1><p class="err" role="alert"></p></div></section>
@@ -36,8 +36,12 @@
     <div class="glass pad">
       <h2 class="h">Your gift <small id="tot"></small></h2>
       <div id="cart"></div>
+      <details id="bqPanel" class="bq-panel" hidden><summary><span>💐 Bouquet design</span><small id="bqSum"></small></summary><div id="bqBody"></div></details>
       <label class="recipient-field" for="recipient">For someone special <small>(optional)</small></label>
       <input id="recipient" type="text" maxlength="60" autocomplete="off" placeholder="Recipient name">
+      <label class="recipient-field" for="delivery">Delivery style</label>
+      <div class="dl-select"><select id="delivery" aria-describedby="dlPrev"></select><span class="dl-chev" aria-hidden="true">▾</span></div>
+      <div id="dlPrev" class="dl-prev" aria-live="polite"></div>
       <label class="tg" id="noteOption"><input type="checkbox" id="nt"> Add a personal note</label>
       <div id="nw" hidden><textarea id="note" rows="5" maxlength="300" placeholder="Write something special..."></textarea><small id="cnt" class="muted">0 / 300 characters</small></div>
       <div id="letterWriter" hidden><label for="letterText">Add text</label><textarea id="letterText" rows="5" maxlength="300" placeholder="Write your letter..."></textarea><small id="letterCount" class="muted">0 / 300 characters</small></div>
@@ -53,7 +57,12 @@
 <div id="toast" class="toast" hidden></div>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="storage.js"></script>
-<script src="flowers.js"></script>
-<script src="app.js"></script>
+<script src="storage.js?v=5"></script>
+<script src="bouquet.js?v=5"></script>
+<script src="flowers.js?v=5"></script>
+<script src="specials.js?v=5"></script>
+<script src="lovebirds.js?v=5"></script>
+<script src="ui.js?v=5"></script>
+<script src="delivery.js?v=5"></script>
+<script src="app.js?v=5"></script>
 </body></html>

@@ -11,6 +11,8 @@ const Store = (() => {
       typeof g.note === 'string' && g.note.length <= 300 &&
       (g.recipient === undefined || (typeof g.recipient === 'string' && g.recipient.length <= 60)) &&
       (g.letterText === undefined || (typeof g.letterText === 'string' && g.letterText.length <= 300)) &&
+      (g.delivery === undefined || (typeof g.delivery === 'string' && /^[a-z][a-z0-9-]{0,19}$/.test(g.delivery))) &&
+      (g.bouquet === undefined || (typeof Bouquet === 'undefined' ? typeof g.bouquet === 'object' : Bouquet.valid(g.bouquet))) &&
       (hasLetter ? typeof g.letterText === 'string' && g.letterText.trim().length > 0 && g.note === '' : true) &&
       Number.isFinite(g.createdAt) && Number.isFinite(g.expiresAt) &&
       g.expiresAt > g.createdAt && g.expiresAt - g.createdAt <= DAY;
@@ -23,10 +25,13 @@ const Store = (() => {
   };
   const write = a => { try { localStorage.setItem(G, JSON.stringify(a)); } catch (e) { alert('Could not save: browser storage is full or blocked.'); } };
   const receiverItems = gift => gift.items.filter(item => item.type !== 'letter').map(item => ({ type: item.type, qty: item.qty }));
+  const MOON = ['glass', 'feet', 'holder', 'discard'];
+  const EXTRA = { moon: MOON, 'moon-half': MOON, 'moon-crescent': MOON, 'moon-split': MOON, snowglobe: ['play', 'discard'], kidney: ['message', 'discard'], heartkidney: ['beat', 'message', 'discard'], lovebirds: ['released'] };
+  const validExtra = x => x === undefined || (!!x && typeof x === 'object' && Object.entries(x).every(([k, v]) => Object.prototype.hasOwnProperty.call(EXTRA, k) && EXTRA[k].includes(v)));
   const validReceiver = (state, gift) => {
     const original = new Map(receiverItems(gift).map(item => [item.type, item.qty]));
     return !!state && state.expiresAt === gift.expiresAt &&
-      [null, 'bottle', 'pot', 'vase', 'discard'].includes(state.container) && Array.isArray(state.items) &&
+      [null, 'bottle', 'pot', 'vase', 'discard'].includes(state.container) && validExtra(state.extra) && Array.isArray(state.items) &&
       state.items.every(item => item && original.has(item.type) && Number.isSafeInteger(item.qty) && item.qty > 0 && item.qty <= original.get(item.type)) &&
       new Set(state.items.map(item => item.type)).size === state.items.length;
   };
@@ -50,9 +55,11 @@ const Store = (() => {
   return {
     all: read,
     get: id => read().find(g => g.id === id) || null,
-    create(items, note, letterText = '', recipient = '') {
+    create(items, note, letterText = '', recipient = '', extras = {}) {
       const now = Date.now(), hasLetter = items.some(i => i.type === 'letter');
       const g = { id: uid(), items, note: hasLetter ? '' : note || '', letterText: hasLetter ? letterText.trim() : '', recipient: recipient.trim().slice(0, 60), createdAt: now, expiresAt: now + DAY };
+      if (extras.delivery && extras.delivery !== 'default') g.delivery = extras.delivery;
+      if (extras.bouquet) g.bouquet = extras.bouquet;
       if (!valid(g)) throw new Error('Gift contents are invalid.');
       write([g, ...read()]);
       return g;

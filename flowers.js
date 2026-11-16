@@ -19,7 +19,8 @@ const Flowers = (() => {
     lily: { s: 1.06, c: ['#f08fbb', '#ffd9ea', '#ffffff'] }, kath: { s: 1.02, c: ['#fff6e0', '#ffd84a', '#f9c9d2'] },
     'cherry-blossom': { s: .92, c: ['#ffb3cf', '#ffd6e4', '#fff4f8'] }, cosmos: { s: .94, c: ['#d92f84', '#f56aa8', '#ffb0d0'] },
     daisy: { s: .86, c: ['#ffffff', '#f4f0f8', '#ffd84a'] }, hibiscus: { s: 1.06, c: ['#c4123a', '#ec2f55', '#ff7d8e'] },
-    lotus: { s: 1.06, c: ['#f27aa8', '#ffd2e3', '#ffffff'] }, peony: { s: 1.1, c: ['#e07a9f', '#f4b2c8', '#fde6ee'] }
+    lotus: { s: 1.06, c: ['#f27aa8', '#ffd2e3', '#ffffff'] }, peony: { s: 1.1, c: ['#e07a9f', '#f4b2c8', '#fde6ee'] },
+    kadam: { s: .98, c: ['#f2a626', '#ffd96a', '#fff8e0'] }, jasmine: { s: 1.08, c: ['#ffffff', '#fdeff3', '#f2d86a'] }, 'white-lily': { s: 1.08, c: ['#ffffff', '#e8f0c0', '#c7621a'] }
   };
   const DEF_STYLE = { s: 1, c: ['#ff5fa8', '#ffb3d5', '#ffffff'] };
   const styleOf = t => STYLE[t] || { ...DEF_STYLE, c: models.get(t)?.accent ? [models.get(t).accent, ...DEF_STYLE.c] : DEF_STYLE.c };
@@ -61,6 +62,17 @@ const Flowers = (() => {
       ]
     }
   };
+  /* Wooden roses: the rose artwork recoloured to carved wood (or lacquered in a colour) with a grain texture on top. */
+  const WOOD_FILTER = '<defs><filter id="woodGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.42" numOctaves="1" seed="7" result="n"/>' +
+    '<feColorMatrix in="n" type="matrix" values="0 0 0 0 .22  0 0 0 0 .11  0 0 0 0 .04  1.25 0 0 0 -.42" result="g"/><feComposite in="g" in2="SourceGraphic" operator="in" result="gr"/>' +
+    '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gr"/></feMerge></filter></defs>';
+  const lacquer = (h, s, l) => [h, s, l];
+  VARIANTS['wood-rose'] = {
+    from: 'rose', overlay: m => `${WOOD_FILTER}<g filter="url(#woodGrain)">${m}</g>`,
+    name: 'Wooden Roses', emoji: '🌹', desc: 'Hand-carved roses that never wilt.',
+    base: { label: 'Natural', swatch: '#b8834c', fn: (h, s, l) => [25 + l * 12, .46 + .16 * l, .1 + l * .66], c: ['#9a6a3a', '#c99a62', '#e6c597'] },
+    list: [{ id: 'red', label: 'Red', swatch: '#d41a47', name: 'Red Wooden Roses', c: ['#c4143f', '#e84a6f', '#ffb0c0'], fn: lacquer }, ...VARIANTS.rose.list.map(v => ({ ...v, name: v.label + ' Wooden Roses' }))]
+  };
   const hexToHsl = hex => {
     let h = hex.slice(1); if (h.length === 3) h = [...h].map(c => c + c).join('');
     const r = parseInt(h.slice(0, 2), 16) / 255, g = parseInt(h.slice(2, 4), 16) / 255, b = parseInt(h.slice(4, 6), 16) / 255;
@@ -80,17 +92,20 @@ const Flowers = (() => {
   };
   const recolor = (markup, fn) => markup.replace(/#([0-9a-fA-F]{6}|[0-9a-fA-F]{3})(?![0-9a-zA-Z])/g, m => hslToHex(...fn(...hexToHsl(m))));
   function registerVariants() {
-    Object.entries(VARIANTS).forEach(([base, cfg]) => {
-      const m = models.get(base), t = TYPES[base];
+    const add = (key, t, m, fn, c, enumerable, extra = {}) => {
+      if (models.has(key) || Object.prototype.hasOwnProperty.call(TYPES, key)) return;
+      Object.defineProperty(TYPES, key, { value: { name: t.name, emoji: t.emoji, desc: t.desc, ...extra }, enumerable, configurable: true });
+      models.set(key, { ...m, markup: recolor(m.markup, fn), accent: c[0] });
+      return key;
+    };
+    Object.entries(VARIANTS).forEach(([type, cfg]) => {
+      const src = cfg.from || type, m = models.get(src), t = TYPES[src];
       if (!m || !t) return;
-      cfg.list.forEach(v => {
-        const key = `${base}-${v.id}`;
-        if (models.has(key) || Object.prototype.hasOwnProperty.call(TYPES, key)) return;
-        // non-enumerable: usable everywhere (links, receiver, scene) but it does not get a dashboard card of its own
-        Object.defineProperty(TYPES, key, { value: { name: v.name, emoji: t.emoji, desc: t.desc, variantOf: base }, enumerable: false, configurable: true });
-        models.set(key, { ...m, markup: recolor(m.markup, v.fn), accent: v.c[0] });
-        STYLE[key] = { s: (STYLE[base] || DEF_STYLE).s, c: v.c };
-      });
+      const wrap = (key, fn, c) => { const k = add(key, key === type ? { ...t, ...cfg } : { ...t, name: cfg.list.find(v => `${type}-${v.id}` === key).name }, m, fn, c, key === type, key === type ? {} : { variantOf: type });
+        if (k && cfg.overlay) models.get(k).markup = cfg.overlay(models.get(k).markup);
+        if (k) STYLE[k] = { s: (STYLE[src] || DEF_STYLE).s, c }; };
+      if (cfg.from) wrap(type, cfg.base.fn, cfg.base.c);
+      cfg.list.forEach(v => wrap(`${type}-${v.id}`, v.fn, v.c));
     });
   }
   const variantsOf = type => VARIANTS[type]
@@ -182,9 +197,9 @@ const Flowers = (() => {
     return out;
   };
   /* Sunflower-spiral packing inside a flattened dome: even coverage, no hidden flowers. */
-  const dome = (n, cx, cy, rx, ry) => Array.from({ length: n }, (_, i) => {
+  const dome = (n, cx, cy, rx, ry, flat = .62) => Array.from({ length: n }, (_, i) => {
     const r = n === 1 ? 0 : Math.sqrt((i + .5) / n), a = i * 2.39996 + .6, s = Math.sin(a);
-    return { x: cx + rx * r * Math.cos(a), y: cy + ry * r * s * (s > 0 ? .62 : 1) };
+    return { x: cx + rx * r * Math.cos(a), y: cy + ry * r * s * (s > 0 ? flat : 1) };
   });
   const leafPath = (len, w) => `M0 0C${n2(w)} ${n2(-len * .25)} ${n2(w * .9)} ${n2(-len * .75)} 0 ${n2(-len)}C${n2(-w * .9)} ${n2(-len * .75)} ${n2(-w)} ${n2(-len * .25)} 0 0Z`;
   const leaf = (x, y, ang, len, w, fill, glow = .5) =>
@@ -233,20 +248,12 @@ const Flowers = (() => {
       : c === 'vase'
         ? `<path d="${vesselShapes.vase}" fill="url(#vase-gloss-${id})" fill-opacity=".64" stroke="#f1d59a" stroke-opacity=".92" stroke-width="2.5"/><path d="M168 287Q200 300 232 287M176 300Q200 309 224 300M184 323Q200 329 216 323" fill="none" stroke="#f5d894" stroke-opacity=".9" stroke-width="2"/><path d="M159 407Q200 428 241 407" fill="none" stroke="#f5d894" stroke-opacity=".65" stroke-width="1.5"/>` : '';
 
-  /* Wrapping paper: layered tissue behind the flowers, a creased cone in front, satin ribbon and bow. */
-  const wrapBack = id => `<path d="M82 270Q200 226 318 270L292 300Q200 318 108 300Z" fill="url(#tissue2-${id})"/><path d="M96 280Q200 246 304 280L284 304Q200 320 116 304Z" fill="url(#tissue1-${id})"/><path d="M104 284Q200 258 296 284" fill="none" stroke="#fff" stroke-opacity=".7" stroke-width="1.5"/>`;
-  const wrapFront = id => `<g><path d="M112 290C128 334 168 398 190 436L210 436C232 398 272 334 288 290Q200 316 112 290Z" fill="url(#wrap-${id})"/>` +
-    `<path d="M112 290Q154 336 200 312L190 436C168 398 128 334 112 290Z" fill="#fff" fill-opacity=".14"/><path d="M288 290Q246 336 200 312L210 436C232 398 272 334 288 290Z" fill="#5a0830" fill-opacity=".16"/>` +
-    `<path d="M135 306L188 428M265 306L212 428M200 314V436" stroke="#8a1348" stroke-opacity=".28" stroke-width="1.4" fill="none"/><path d="M114 291Q200 318 286 291" fill="none" stroke="#ffe9f3" stroke-opacity=".9" stroke-width="2.6"/>` +
-    `<path d="M143 342Q200 358 257 342L252 358Q200 374 148 358Z" fill="url(#ribbon-${id})" stroke="#c9a15a" stroke-width=".8"/>` +
-    `<g transform="translate(200 352)"><path d="M0 0C-16 -22 -40 -16 -37 2C-34 16 -12 12 0 0Z" fill="#ff4f9c" stroke="#ffd7ec" stroke-width="1.2"/><path d="M0 0C16 -22 40 -16 37 2C34 16 12 12 0 0Z" fill="#ff4f9c" stroke="#ffd7ec" stroke-width="1.2"/><path d="M-3 4C-14 20 -20 34 -26 44L-14 40L-8 50C-4 34 0 20 0 6Z" fill="#e8267f" stroke="#ffd7ec" stroke-width="1"/><path d="M3 4C14 20 20 34 26 44L14 40L8 50C4 34 0 20 0 6Z" fill="#e8267f" stroke="#ffd7ec" stroke-width="1"/><path d="M-24 -4C-18 -10 -10 -8 -4 0M24 -4C18 -10 10 -8 4 0" fill="none" stroke="#fff" stroke-opacity=".5" stroke-width="1"/><ellipse rx="8" ry="7" fill="#ff7fb8" stroke="#ffd7ec" stroke-width="1.2"/><ellipse cx="-2" cy="-2" rx="3" ry="2" fill="#fff" fill-opacity=".5"/></g></g>`;
-
   /* ---------- the arrangement ----------
      Layers (bottom to top): back SVG (greenery, stems, vessel back) -> flower heads (real HTML elements, so they are
      individually touchable and GPU-animated) -> front SVG (wrapping paper / vessel front).
      Nothing is capped or clipped: every flower gets its own spot, and the view is an overflow-visible HTML box. */
-  function scene(items, focus = false, container = '') {
-    const L = items.filter(i => TYPES[i.type] && i.type !== 'letter' && i.qty > 0);
+  function scene(items, focus = false, container = '', bqOpts = null, still = false) {
+    const L = items.filter(i => TYPES[i.type] && !TYPES[i.type].special && i.type !== 'letter' && i.qty > 0);
     if (!L.length) return '';
     const id = ++sceneId, rand = rng(7 + id * 13 % 97);
     const flowers = L.filter(i => kindOf(i.type) !== 'cactus'), cacti = L.filter(i => kindOf(i.type) === 'cactus');
@@ -254,7 +261,9 @@ const Flowers = (() => {
     const H = take(flowers, 64), C = take(cacti, totalF ? 6 : 12);
     const hidden = totalF - H.length + totalC - C.length, nF = H.length, hasC = C.length > 0;
     const vessel = nF && (container === 'bottle' || container === 'vase'), pot = nF && container === 'pot';
-    const wrap = nF > 0 && !container && (flowers.length > 1 || totalF >= 4);
+    const o = Bouquet.norm(bqOpts);                                   // no options (older gifts) = the original luxury wrap
+    const bouquetOn = nF > 0 && !container && (bqOpts ? totalF >= 2 : flowers.length > 1 || totalF >= 4);
+    const wrap = bouquetOn && o.wrap === 'paper', ribbonOnly = bouquetOn && o.wrap === 'ribbon';
     const T = hasC && nF ? { dx: 40, sc: .8 } : { dx: 0, sc: 1 };       // bouquet shrinks/moves aside to make room for cacti
     const mx = x => 200 + (x - 200) * T.sc + T.dx, my = y => 430 + (y - 430) * T.sc;
     const V = focus ? (nF ? [85, 95, 230, 320] : [60, 140, 280, 290]) : [0, 0, 400, 450];
@@ -263,58 +272,71 @@ const Flowers = (() => {
     const defs = `<defs><linearGradient id="leaf-${id}" x1="0" y1="0" x2="1" y2="1"><stop stop-color="#a7d765"/><stop offset=".45" stop-color="#3f9650"/><stop offset="1" stop-color="#145133"/></linearGradient>` +
       `<linearGradient id="leaf2-${id}" x1="1" y1="0" x2="0" y2="1"><stop stop-color="#cfe6b2"/><stop offset=".5" stop-color="#6fae78"/><stop offset="1" stop-color="#2b7050"/></linearGradient>` +
       `<linearGradient id="stem-${id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#1b5a38"/><stop offset=".5" stop-color="#4d9a58"/><stop offset="1" stop-color="#1b5a38"/></linearGradient>` +
-      `<linearGradient id="wrap-${id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#c91762"/><stop offset=".5" stop-color="#ff78b6"/><stop offset="1" stop-color="#d91e70"/></linearGradient>` +
-      `<linearGradient id="tissue1-${id}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#fffafc"/><stop offset="1" stop-color="#ffdcec"/></linearGradient>` +
-      `<linearGradient id="tissue2-${id}" x1="0" y1="0" x2="0" y2="1"><stop stop-color="#ffc2dc"/><stop offset="1" stop-color="#f58fba"/></linearGradient>` +
-      `<linearGradient id="ribbon-${id}" x1="0" y1="0" x2="1" y2="0"><stop stop-color="#e9c47a"/><stop offset=".5" stop-color="#fff3d2"/><stop offset="1" stop-color="#d9a954"/></linearGradient>` +
+      Bouquet.defs(id, o) +
       `<radialGradient id="ground-${id}"><stop stop-color="#000" stop-opacity=".42"/><stop offset="1" stop-color="#000" stop-opacity="0"/></radialGradient>${vesselDefs(container, id)}</defs>`;
     const fills = [`url(#leaf-${id})`, `url(#leaf2-${id})`];
-    const addHead = (t, x, y, s, z, extra = '') => {
+    const addHead = (t, x, y, s, z, extra = {}) => {
       const kind = kindOf(t), name = TYPES[t].name, rot = kind === 'cactus' ? 0 : Math.round(rand() * 360);
-      heads.push({ y, html: `<div class="fl flower-touch${kind === 'cactus' ? ' cac' : ''}" role="button" tabindex="0" data-flower="${t}" data-kind="${kind}" aria-label="Touch the ${name.replace(/"/g, '')}" ` +
-        `style="left:${pc(x, V[0], V[2])};top:${pc(y, V[1], V[3])};width:${n2(100 * s / V[2] * 100)}%;--d:${n2(-rand() * 5)}s;--a:${n2(1.2 + rand() * 1.6)}deg${extra}"><span class="fl-sway"><span class="fl-lift"><span class="bloom">${headSVG(t, rot)}</span></span></span></div>` });
+      heads.push({ y, front: !!extra.front, html: `<div class="fl flower-touch${kind === 'cactus' ? ' cac' : ''}" role="button" tabindex="0" data-flower="${t}" data-kind="${kind}" aria-label="Touch the ${name.replace(/"/g, '')}" ` +
+        `style="left:${pc(x, V[0], V[2])};top:${pc(y, V[1], V[3])};width:${n2(100 * s / V[2] * 100)}%;--d:${n2(-rand() * 5)}s;--a:${n2(1.2 + rand() * 1.6)}deg"><span class="fl-sway"><span class="fl-lift"><span class="bloom">${headSVG(t, rot)}</span></span></span></div>` });
     };
 
     if (nF) {
       /* 1. where every flower head sits */
-      let pts, base;
-      if (wrap) { pts = dome(nF, 200, 188, nF > 20 ? 128 : 116, nF > 20 ? 104 : 94); base = () => [200, 410]; }
+      let pts, base, lay = null;
+      if (bouquetOn) { lay = Bouquet.layout(o.style, nF, rand, dome); pts = lay.pts; base = (i, p) => [Math.max(172, Math.min(228, 200 - (p.x - 200) * .2)) + (rand() - .5) * 4, 412]; }
       else if (vessel) { pts = dome(nF, 200, 186, 90, 68); base = i => [200 + ((i % 5) - 2) * 5, 410]; }
       else if (pot) { pts = dome(nF, 200, 196, 100, 66); base = (i, p) => [200 + (p.x - 200) * .55, 336]; }
       else {                                                       // a few loose stems
         pts = H.map((_, i) => { const o = i - (nF - 1) / 2; return { x: 200 + o * 80, y: 178 + Math.abs(o) * 28 }; });
         base = i => [200 + (i - (nF - 1) / 2) * 16, 410];
       }
-      const area = Math.PI * (wrap ? 116 : vessel ? 90 : pot ? 100 : 130) * (wrap ? 94 : vessel ? 68 : pot ? 66 : 90) * .82;
-      const D = Math.max(40, Math.min(nF <= 3 && !wrap ? 130 : 124, 1.5 * Math.sqrt(area / nF)));
+      const area = Math.PI * (vessel ? 90 : pot ? 100 : 130) * (vessel ? 68 : pot ? 66 : 90) * .82;
+      const D = lay ? (lay.D || Math.max(40, Math.min(124, 1.5 * Math.sqrt(lay.area / nF) * lay.k))) : Math.max(40, Math.min(nF <= 3 ? 130 : 124, 1.5 * Math.sqrt(area / nF)));
       /* 2. greenery behind everything */
-      if (wrap || vessel) {
-        const r2 = rand, spread = wrap ? 70 : 52, ry = wrap ? 124 : 100, throat = vessel ? [200, 296] : [200, 322];
-        for (let k = 0; k < 11; k++) { const a = (k / 10 - .5) * 2 * spread; back.push(frond(mx(throat[0]), my(throat[1]), a, (ry + 38 + r2() * 26) * T.sc, r2, fills)); }
-        if (wrap) for (let k = 0; k < 9; k++) { const a = (k / 8 - .5) * 2 * 54 + (r2() - .5) * 8; back.push(sprig(mx(200 + Math.sin(a * .0175) * 20), my(318), a, (ry + 6 + r2() * 26) * T.sc)); }
+      const throat = vessel ? [200, 296] : [200, wrap ? 322 : 332];
+      if (bouquetOn && lay.fronds[0]) {
+        const [fc, spread, flen] = lay.fronds;
+        for (let k = 0; k < fc; k++) { const a = (k / Math.max(1, fc - 1) - .5) * 2 * spread + (rand() - .5) * 6; back.push(frond(mx(throat[0]), my(throat[1]), a, (flen + rand() * 26) * T.sc, rand, fills)); }
+        for (let k = 0; k < lay.sprigs; k++) { const a = (k / Math.max(1, lay.sprigs - 1) - .5) * 2 * 56 + (rand() - .5) * 10; back.push(sprig(mx(200 + Math.sin(a * .0175) * 20), my(throat[1] - 4), a, (flen - 100 + 100 + rand() * 24 - 20) * T.sc * .78)); }
+      } else if (vessel) {
+        for (let k = 0; k < 11; k++) { const a = (k / 10 - .5) * 2 * 52; back.push(frond(mx(throat[0]), my(throat[1]), a, (138 + rand() * 26) * T.sc, rand, fills)); }
       }
+      if (bouquetOn && lay.leaves) for (let k = 0; k < lay.leaves; k++) back.push(leaf(mx(200 + (k ? 6 : -6)), my(330), (k ? 1 : -1) * (34 + rand() * 10), 90 * T.sc, 20 * T.sc, fills[k]));
       const tf = `translate(${n2(200 * (1 - T.sc) + T.dx)} ${n2(430 * (1 - T.sc))}) scale(${T.sc})`;
-      if (wrap) back.push(`<g transform="${tf}">${wrapBack(id)}</g>`);
+      if (wrap) back.push(`<g transform="${tf}">${Bouquet.wrapBack(id, o)}</g>`);
       back.push(vesselBack(container, id));
       /* 3. stems with leaves, then the heads */
       const order = pts.map((p, i) => ({ p, i, t: H[i] })).sort((a, b) => a.p.y - b.p.y);
+      const stemSvg = (d, w = 1) => `<path d="${d}" stroke="#12402a" stroke-width="${n2(5.4 * T.sc * w)}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="url(#stem-${id})" stroke-width="${n2(3.6 * T.sc * w)}" fill="none" stroke-linecap="round"/>`;
       order.forEach(({ p, i, t }) => {
         const [bx, by] = base(i, p), x = mx(p.x), y = my(p.y), X0 = mx(bx), Y0 = my(by);
-        const c1 = vessel ? [X0, my(350)] : [X0, y + (Y0 - y) * .5], c2 = vessel ? [mx(200), my(290)] : [x, y + (Y0 - y) * .38];
-        const d = `M${n2(X0)} ${n2(Y0)}C${n2(c1[0])} ${n2(c1[1])} ${n2(c2[0])} ${n2(c2[1])} ${n2(x)} ${n2(y)}`;
-        let s = `<path d="${d}" stroke="#12402a" stroke-width="${n2(5.4 * T.sc)}" fill="none" stroke-linecap="round"/><path d="${d}" stroke="url(#stem-${id})" stroke-width="${n2(3.6 * T.sc)}" fill="none" stroke-linecap="round"/>`;
-        if (i % 2 === 0 || !wrap) {
-          const u = .5 + (i % 3) * .06, q = cubic([X0, Y0], c1, c2, [x, y], u), ta = Math.atan2(q.tx, -q.ty) * 180 / Math.PI, sd = i % 4 < 2 ? 1 : -1;
-          s += leaf(q.x, q.y, ta + sd * 48, 34 * T.sc, 12 * T.sc, fills[i % 2]);
+        if (bouquetOn && p.trail) { const sx = mx(200 + (rand() - .5) * 16), sy = my(300); front.push(stemSvg(`M${n2(sx)} ${n2(sy)}Q${n2((sx + x) / 2 + (x < sx ? -14 : 14))} ${n2(sy - 4)} ${n2(x)} ${n2(y)}`, .85)); return; }
+        let d, c1, c2;
+        if (bouquetOn) {                                          // stems bunch at the tie, then cross and fan out below it
+          const tx = mx(200 + (rand() - .5) * 6), ty = my(throat[1] + 2);
+          d = `M${n2(X0)} ${n2(Y0)}L${n2(tx)} ${n2(ty)}C${n2(tx)} ${n2(ty - 46 * T.sc)} ${n2(x)} ${n2(y + (ty - y) * .42)} ${n2(x)} ${n2(y)}`;
+          c1 = [tx, ty - 46 * T.sc]; c2 = [x, y + (ty - y) * .42];
+        } else {
+          c1 = vessel ? [X0, my(350)] : [X0, y + (Y0 - y) * .5]; c2 = vessel ? [mx(200), my(290)] : [x, y + (Y0 - y) * .38];
+          d = `M${n2(X0)} ${n2(Y0)}C${n2(c1[0])} ${n2(c1[1])} ${n2(c2[0])} ${n2(c2[1])} ${n2(x)} ${n2(y)}`;
         }
-        back.push(s);
+        let sv = stemSvg(d);
+        if (i % 2 === 0 || !bouquetOn) {
+          const u = bouquetOn ? .78 + (i % 3) * .06 : .5 + (i % 3) * .06, q = bouquetOn ? cubic([mx(200), my(throat[1])], c1, c2, [x, y], u) : cubic([X0, Y0], c1, c2, [x, y], u);
+          const ta = Math.atan2(q.tx, -q.ty) * 180 / Math.PI, sd = i % 4 < 2 ? 1 : -1;
+          if (!(lay && lay.leaves === 2)) sv += leaf(q.x, q.y, ta + sd * 48, 34 * T.sc, 12 * T.sc, fills[i % 2]);
+        }
+        if (ribbonOnly) sv += `<ellipse cx="${n2(X0)}" cy="${n2(Y0)}" rx="${n2(2.6 * T.sc)}" ry="${n2(1.4 * T.sc)}" fill="#cfe6a8" stroke="#2c6a3c" stroke-width=".6"/>`;
+        back.push(sv);
       });
       order.forEach(({ p, i, t }, z) => {
-        const sty = styleOf(t), sc = D * sty.s * (.96 + rand() * .08) * T.sc / 92;
-        addHead(t, mx(p.x), my(p.y), sc, z);
+        const sty = styleOf(t), sc = D * sty.s * (p.sz || 1) * (.96 + rand() * .08) * T.sc / 92;
+        addHead(t, mx(p.x), my(p.y), sc, z, { front: !!p.trail });
       });
-      if (!wrap && !vessel && !pot && !focus && nF > 1) back.push(`<g><ellipse cx="${mx(200)}" cy="${my(352)}" rx="${n2(26 * T.sc)}" ry="${n2(7 * T.sc)}" fill="#d9b88a" stroke="#8a6a3a" stroke-width="1"/><path d="M${mx(176)} ${my(350)}Q${mx(200)} ${my(358)} ${mx(224)} ${my(350)}" stroke="#f3dcb0" stroke-width="1.4" fill="none"/></g>`);
-      if (wrap) front.push(`<g transform="${tf}">${wrapFront(id)}</g>`);
+      if (!bouquetOn && !vessel && !pot && !focus && nF > 1) back.push(`<g><ellipse cx="${mx(200)}" cy="${my(352)}" rx="${n2(26 * T.sc)}" ry="${n2(7 * T.sc)}" fill="#d9b88a" stroke="#8a6a3a" stroke-width="1"/><path d="M${mx(176)} ${my(350)}Q${mx(200)} ${my(358)} ${mx(224)} ${my(350)}" stroke="#f3dcb0" stroke-width="1.4" fill="none"/></g>`);
+      if (wrap) front.unshift(`<g transform="${tf}">${Bouquet.wrapFront(id, o)}</g>`);
+      else if (ribbonOnly) front.unshift(`<g transform="${tf}">${Bouquet.tie(id, o, 200, 334, 1.05)}</g>`);
       front.push(vesselFront(container, id));
     }
 
@@ -338,11 +360,13 @@ const Flowers = (() => {
       });
     }
     heads.sort((a, b) => a.y - b.y);
+    const hb = heads.filter(h => !h.front), hf = heads.filter(h => h.front);
+    const layer = (list, z0) => list.map((h, z) => h.html.replace('style="', `style="z-index:${z0 + z};`)).join('');
     const more = hidden > 0 ? `<small class="bq-more">+${hidden} more</small>` : '';
     const total = totalF + totalC;
     const svg = (cls, body) => `<svg class="bq-layer ${cls}" viewBox="${V.join(' ')}" aria-hidden="true" focusable="false">${body}</svg>`;
-    return `<div class="bq${focus ? ' focus' : ''}${hasC && !nF ? ' cacti-only' : ''}" style="--ar:${V[2]}/${V[3]};aspect-ratio:${V[2]}/${V[3]}" role="group" aria-label="${container ? container + ' flower arrangement' : 'Flower arrangement'}, ${total} item${total === 1 ? '' : 's'}">` +
-      `<div class="bq-in">${svg('back', defs + back.join(''))}<div class="bq-heads">${heads.map((h, z) => h.html.replace('style="', `style="z-index:${z + 1};`)).join('')}</div>${svg('front', front.join(''))}${more}</div></div>`;
+    return `<div class="bq${focus ? ' focus' : ''}${still ? ' still' : ''}${hasC && !nF ? ' cacti-only' : ''}" style="--ar:${V[2]}/${V[3]};aspect-ratio:${V[2]}/${V[3]}" role="group" aria-label="${container ? container + ' flower arrangement' : 'Flower arrangement'}, ${total} item${total === 1 ? '' : 's'}">` +
+      `<div class="bq-in">${svg('back', defs + back.join(''))}<div class="bq-heads">${layer(hb, 1)}</div>${svg('front', front.join(''))}${hf.length ? `<div class="bq-heads">${layer(hf, 200)}</div>` : ''}${more}</div></div>`;
   }
 
   /* ---------- envelope ----------
@@ -431,7 +455,80 @@ const Flowers = (() => {
       if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.flower-touch') && enabled()) { e.preventDefault(); play(e.target); }
     });
   }
-  return { TYPES, scene, envelope, envelopeArt, enableTouch, loadModels, variantsOf };
+
+  /* ---------- flower actions: shake, throw & catch, water spray, throw away ---------- */
+  const calmMotion = () => window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+  const parts = fl => ({ b: fl.querySelector('.bloom'), l: fl.querySelector('.fl-lift') });
+  const settle = (fl, anim) => { fl._a?.cancel(); fl._a = anim; return anim.finished.catch(() => {}); };
+  const ripple = (fl, power) => {                                   // neighbours sway a little after the touched flower
+    const r = fl.getBoundingClientRect(), cx = r.left + r.width / 2, cy = r.top + r.height / 2;
+    fl.closest('.bq')?.querySelectorAll('.flower-touch').forEach(o => {
+      if (o === fl || o._a?.playState === 'running') return;
+      const q = o.getBoundingClientRect(), d = Math.hypot(q.left + q.width / 2 - cx, q.top + q.height / 2 - cy), R = r.width * 3.4;
+      if (d < R) o.querySelector('.bloom')?.animate([{ transform: 'rotate(0)' }, { transform: `rotate(${(q.left < cx ? -1 : 1) * 4 * power * (1 - d / R)}deg)` }, { transform: 'rotate(0)' }], { duration: 800, delay: 60 + d / r.width * 60, easing: 'ease-in-out' });
+    });
+  };
+  const ACTIONS = {
+    shake(fl) {                                                      // damped sway about the stem, petals lag behind
+      const { b, l } = parts(fl); if (!b || calmMotion()) return Promise.resolve();
+      b.style.transformOrigin = '50% 135%';
+      const A = [0, -13, 10, -7, 4.5, -2, 0], kf = A.map((a, i) => ({ transform: `rotate(${a}deg) translateX(${a * .35}%)`, offset: i / (A.length - 1) }));
+      l?.animate([{ transform: 'rotate(0)' }, { transform: 'rotate(6deg)' }, { transform: 'rotate(-5deg)' }, { transform: 'rotate(3deg)' }, { transform: 'rotate(-1.5deg)' }, { transform: 'rotate(0)' }], { duration: 1400, delay: 90, easing: 'ease-in-out' });
+      ripple(fl, 1);
+      return settle(fl, b.animate(kf, { duration: 1300, easing: 'cubic-bezier(.3,.6,.4,1)' }));
+    },
+    throw(fl) {                                                      // toss up, spin in the air, catch it back on the stem
+      const { b } = parts(fl); if (!b || calmMotion()) return Promise.resolve();
+      b.style.transformOrigin = '50% 50%';
+      return settle(fl, b.animate([
+        { transform: 'translateY(0) rotate(0) scale(1)', easing: 'cubic-bezier(.2,.75,.35,1)' },
+        { transform: 'translateY(-150%) rotate(215deg) scale(1.13)', offset: .46, easing: 'ease-in-out' },
+        { transform: 'translateY(-158%) rotate(255deg) scale(1.12)', offset: .54, easing: 'cubic-bezier(.55,0,.9,.5)' },
+        { transform: 'translateY(0) rotate(360deg) scale(1)', offset: .88, easing: 'ease-out' },
+        { transform: 'translateY(-6%) rotate(364deg) scale(1.03)', offset: .94 },
+        { transform: 'translateY(0) rotate(360deg) scale(1)' }
+      ], { duration: 2000 }));
+    },
+    spray(fl) {                                                      // droplets arc in from above-left, then dew stays on the petals
+      if (calmMotion()) { ACTIONS.dew(fl); return Promise.resolve(); }
+      const layer = fl.parentElement, W = fl.getBoundingClientRect().width, L = fl.style.left, T = fl.style.top;
+      const mist = el('span', 'sp-mist'); mist.style.cssText = `left:${L};top:${T};width:${W * 1.5}px;height:${W * 1.5}px`; layer.append(mist);
+      mist.animate([{ opacity: 0, transform: 'translate(-72%,-72%) scale(.5)' }, { opacity: .55, transform: 'translate(-58%,-58%) scale(1)', offset: .4 }, { opacity: 0, transform: 'translate(-50%,-50%) scale(1.15)' }], { duration: 1500, easing: 'ease-out' }).onfinish = () => mist.remove();
+      for (let k = 0; k < 26; k++) {
+        const d = el('span', 'sp-drop'), a = Math.random() * 6.28, r = Math.random() * W * .36, tx = Math.cos(a) * r, ty = Math.sin(a) * r;
+        d.style.cssText = `left:${L};top:${T};--z:${(2 + Math.random() * 3).toFixed(1)}px`; layer.append(d);
+        d.animate([
+          { transform: `translate(calc(-50% - ${W * .95}px),calc(-50% - ${W * .8}px)) scale(.6)`, opacity: 0 },
+          { transform: `translate(calc(-50% + ${tx * .5 - W * .3}px),calc(-50% + ${ty * .5 - W * .42}px)) scale(1)`, opacity: 1, offset: .55 },
+          { transform: `translate(calc(-50% + ${tx}px),calc(-50% + ${ty}px)) scale(.4)`, opacity: 0 }
+        ], { duration: 650 + Math.random() * 350, delay: k * 28, easing: 'cubic-bezier(.3,.5,.5,1)' }).onfinish = () => d.remove();
+      }
+      const { b } = parts(fl); b?.animate([{ transform: 'scale(1)' }, { transform: 'scale(.97) rotate(-2deg)', offset: .3 }, { transform: 'scale(1)' }], { duration: 1100, delay: 400, easing: 'ease-in-out' });
+      return new Promise(res => setTimeout(() => { ACTIONS.dew(fl); res(); }, 1100));
+    },
+    dew(fl) {                                                        // little droplets that keep sparkling on the petals
+      const b = fl.querySelector('.bloom'); if (!b) return;
+      b.querySelector('.dew-layer')?.remove();
+      const lay = el('span', 'dew-layer');
+      for (let k = 0; k < 18; k++) {
+        const a = Math.random() * 6.28, r = Math.sqrt(Math.random()) * 38, i = el('i', 'dew');
+        i.style.cssText = `left:${50 + Math.cos(a) * r}%;top:${50 + Math.sin(a) * r}%;--s:${(3.2 + Math.random() * 4.2).toFixed(1)}%;--g:${(-Math.random() * 3).toFixed(2)}s;animation-delay:${(k * 40)}ms`;
+        lay.append(i);
+      }
+      b.append(lay); fl.dataset.wet = '1';
+    },
+    away(fl) {                                                       // the existing throw-away motion, for a single flower
+      const { b } = parts(fl); if (!b || calmMotion()) return Promise.resolve();
+      b.style.transformOrigin = '50% 50%';
+      const a = b.animate([
+        { transform: 'translate(0,0) rotate(0) scale(1)', opacity: 1 },
+        { transform: 'translate(40%,-170%) rotate(300deg) scale(.7)', opacity: 1, offset: .55 },
+        { transform: 'translate(150%,-110%) rotate(720deg) scale(.15)', opacity: 0 }
+      ], { duration: 800, easing: 'cubic-bezier(.4,0,.6,1)', fill: 'forwards' });
+      return settle(fl, a);
+    }
+  };
+  return { TYPES, scene, envelope, envelopeArt, enableTouch, loadModels, variantsOf, kindOf, act: ACTIONS };
 })();
 
 /* Letter overlay with typewriter animation. Uses textContent only (no HTML injection). */

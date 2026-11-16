@@ -50,3 +50,86 @@ body.dim #fx{opacity:.4}
 .garden-credit{top:10px;bottom:auto;max-width:calc(100vw - 28px)}
 @keyframes pulse{50%{box-shadow:0 0 40px var(--pk)}}
 @media(max-width:480px){.envwrap{right:0}.env{width:80px;height:56px}.flower-manager{padding:7px 10px}.flower-choices{width:min(88vw,320px)}}
+
+/* ===== Special gifts on the gift page ===== */
+/* centred inside the pink glow (the glow is the flowers layer's ::before, centred at 53% of the stage) */
+#specials,#feet{align-items:center;padding-top:6%;box-sizing:border-box}
+#specials::before,#feet::before{display:none}
+#specials .sp-row{width:100%;margin:0;gap:10px;justify-content:center;align-items:center}
+#specials .sp-wrap{flex:0 0 var(--w,62%);max-width:var(--w,62%)}
+#specials .sp{width:100%}
+.gwrap.has-fl #specials{justify-content:flex-end;padding-top:0;align-items:flex-end}
+.gwrap.has-fl #specials .sp-row{width:38%;flex-direction:column;align-items:center;gap:4px}
+.gwrap.has-fl #specials .sp-wrap{flex:none;max-width:none;width:100%;display:flex;justify-content:center}
+.gwrap.has-fl #flowers .bq{transform:translateX(-14%) scale(.84);transform-origin:50% 100%}
+.gwrap.on-feet #feet{align-items:flex-end;padding-top:0}
+.gwrap.on-feet #flowers{inset:0 0 46px}
+.sp-wrap.discarding{animation:throw-away .65s ease-in forwards}
+.opt-group{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
+.opt-title{grid-column:1/-1;margin-top:4px;font:600 .8rem Poppins,sans-serif;color:var(--lp);text-align:left}
+.flower-choice[hidden]{display:none}
+
+/* ===== Delivery styles ===== */
+.stage.dl-hold h1,.stage.dl-hold #go{visibility:hidden}
+.stage.delivering h1,.stage.delivering #go,.stage.delivering .box{visibility:hidden;opacity:0;pointer-events:none}
+.dl-layer{position:fixed;inset:0;z-index:60;pointer-events:none;overflow:hidden}
+.dl-layer>*{pointer-events:auto}
+.dl-carry{position:fixed;left:0;top:0;will-change:transform;pointer-events:none}
+.dl-carry .pg{display:block;width:100%;overflow:visible;animation:pg-bob .44s ease-in-out infinite alternate;filter:drop-shadow(0 8px 10px rgba(0,0,0,.35))}
+.dl-swing{position:absolute;left:0;right:0;height:0;transform-origin:50% 0;animation:dl-sway 1.5s ease-in-out infinite}
+.dl-strings{position:absolute;left:50%;top:0;width:70px;height:30px;margin-left:-35px;overflow:visible}
+.dl-box{filter:drop-shadow(0 0 14px rgba(255,47,146,.55));pointer-events:none}
+.pg-wing{transform-box:fill-box;transform-origin:0 100%;animation:pg-flap .44s ease-in-out infinite alternate}
+.pg-wing.back{transform-origin:100% 100%;animation-name:pg-flap-b}
+.dl-pop{position:fixed;left:0;right:0;top:11vh;margin:0 auto;width:min(86vw,330px);padding:22px 20px;text-align:center;animation:cf-pop .5s cubic-bezier(.2,1.2,.4,1) both;transition:opacity .3s,transform .3s}
+.dl-pop.out{opacity:0;transform:translateY(10px)}
+.dl-pop h2{font-size:2.1rem;margin:2px 0 6px}.dl-pop p{line-height:1.5;margin:0 0 14px;opacity:.92}
+.dl-ico{font-size:2.4rem;animation:pg-bob 1.6s ease-in-out infinite alternate;filter:drop-shadow(0 0 12px var(--pk))}
+.dl-skip{position:fixed;right:14px;bottom:12px;z-index:70;padding:7px 14px;border:1px solid rgba(255,255,255,.3);border-radius:99px;background:rgba(20,4,24,.55);color:var(--lp);font:500 .78rem Poppins,sans-serif;cursor:pointer;backdrop-filter:blur(4px);touch-action:manipulation}
+.dl-skip:hover{color:#fff;border-color:var(--pk)}
+.dl-knock{position:fixed;left:0;right:0;top:11vh;text-align:center;opacity:0}
+.dl-knock h2{font-size:clamp(2.4rem,9vw,4rem);color:var(--sp);text-shadow:0 0 26px var(--pk);margin:0}
+.dl-knock p{margin:4px 0 0;font:600 clamp(1rem,3.6vw,1.35rem) Poppins,sans-serif;color:var(--lp);text-shadow:0 0 14px var(--pk)}
+.dl-hint{position:fixed;left:0;right:0;bottom:4.2vh;text-align:center;font:600 1rem Poppins,sans-serif;color:var(--sp);opacity:0;letter-spacing:.06em;text-shadow:0 0 14px var(--pk);transition:opacity .5s;pointer-events:none}
+.dl-hint.show{opacity:1;animation:dl-pulse 1.5s ease-in-out infinite}
+.dl-hint::before{content:"👆";display:inline-block;margin-right:8px;animation:dl-tap 1.5s ease-in-out infinite}
+.pb{position:fixed;left:50%;bottom:11vh;width:170px;height:250px;margin-left:-85px;padding:0;border:0;border-radius:85px 85px 10px 10px;cursor:pointer;perspective:700px;transform:translateY(130%);
+ background:linear-gradient(90deg,#8f0e26,#e0203f 28%,#ff5a72 47%,#e0203f 64%,#8f0e26);box-shadow:inset 0 -14px 18px rgba(0,0,0,.28),inset 0 10px 14px rgba(255,255,255,.2),0 0 30px rgba(255,47,146,.4);-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.pb.in{transform:translateY(0);transition:transform .9s cubic-bezier(.2,1.3,.4,1)}
+.pb.ready{animation:pb-wobble 1.8s ease-in-out infinite}
+.pb:disabled{cursor:default}.pb:focus-visible{outline:2px solid #fff;outline-offset:6px}
+.pb>*{position:absolute;display:block}
+.pb-cap{top:-7px;left:50%;width:40px;height:15px;margin-left:-20px;border-radius:50%;background:linear-gradient(#ffe9a0,#b8861e)}
+.pb-slot{top:46px;left:28px;right:28px;height:12px;border-radius:6px;background:#1b0610;box-shadow:inset 0 3px 4px #000,0 1px 0 rgba(255,255,255,.45)}
+.pb-plate{top:70px;left:50%;transform:translateX(-50%);padding:2px 12px;border:1.5px solid #f3d27a;border-radius:3px;background:rgba(0,0,0,.2);color:#ffe9a0;font:700 .62rem/1.5 Poppins,sans-serif;letter-spacing:.24em}
+.pb-inside{left:25px;top:104px;width:120px;height:124px;border-radius:5px;background:radial-gradient(circle at 50% 40%,#3a0a16,#0e0308);box-shadow:inset 0 0 16px #000}
+.pb-door{left:25px;top:104px;width:120px;height:124px;border-radius:5px;border:2px solid #7a0a1c;background:linear-gradient(90deg,#b0102c,#ea3a56 42%,#c4153a);transform-origin:0 50%;transition:transform 1.1s cubic-bezier(.5,0,.2,1);box-shadow:3px 4px 10px rgba(0,0,0,.35)}
+.pb.open .pb-door{transform:rotateY(-112deg)}
+.pb-lock{right:12px;top:50%;width:10px;height:10px;margin-top:-5px;border-radius:50%;background:radial-gradient(circle at 35% 30%,#fff3c0,#b8861e)}
+.pb-bar{left:14px;right:34px;top:22px;height:3px;border-radius:2px;background:rgba(255,255,255,.35)}
+.pb-base{bottom:-9px;left:-10px;right:-10px;height:18px;border-radius:6px;background:linear-gradient(#5a0a1a,#2a0510)}
+@keyframes pg-bob{to{transform:translateY(-4px)}}
+@keyframes pg-flap{from{transform:rotate(-10deg)}to{transform:rotate(46deg)}}
+@keyframes pg-flap-b{from{transform:rotate(10deg)}to{transform:rotate(-46deg)}}
+@keyframes dl-sway{0%,100%{transform:rotate(-4deg)}50%{transform:rotate(4deg)}}
+@keyframes dl-pulse{50%{opacity:.55;transform:translateY(-3px)}}
+@keyframes dl-tap{50%{transform:translateY(-5px) scale(1.12)}}
+@keyframes pb-wobble{0%,100%{transform:rotate(0)}50%{transform:rotate(-1.4deg)}}
+
+/* ===== Flower actions + sound ===== */
+.flower-actions{position:relative;z-index:5;width:min(94vw,440px);margin:8px auto 0;padding:10px 12px 12px;border-radius:18px;text-align:center;animation:cf-pop .35s cubic-bezier(.2,1.2,.4,1) both}
+.fa-name{display:block;margin-bottom:8px;font:500 .8rem Poppins,sans-serif;color:var(--lp)}.fa-name b{color:#fff}
+.fa-btns{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:7px}
+.fa-btns button{display:flex;flex-direction:column;align-items:center;gap:3px;min-height:56px;padding:8px 4px;border:1px solid rgba(255,47,146,.4);border-radius:14px;background:rgba(40,0,31,.6);color:#fff;font:600 .68rem/1.15 Poppins,sans-serif;cursor:pointer;touch-action:manipulation;transition:transform .2s cubic-bezier(.22,1,.36,1),background .2s,border-color .2s,box-shadow .2s}
+.fa-btns button i{font-style:normal;font-size:1.25rem}
+@media(hover:hover){.fa-btns button:hover{transform:translateY(-2px);border-color:var(--pk);box-shadow:0 0 14px rgba(255,47,146,.4)}}
+.fa-btns button:active{transform:scale(.95)}
+.fa-btns button.danger{border-color:rgba(255,80,110,.55)}
+.flower-actions.busy .fa-btns button{opacity:.55;pointer-events:none}
+.flower-actions[data-run=shake] [data-fact=shake],.flower-actions[data-run=throw] [data-fact=throw],.flower-actions[data-run=spray] [data-fact=spray]{opacity:1;background:linear-gradient(135deg,#ff3b9a,#a0126a)}
+.sound-btn{position:fixed;top:12px;right:12px;z-index:30;width:42px;height:42px;border:1px solid rgba(255,255,255,.28);border-radius:50%;background:rgba(20,4,24,.55);color:#fff;font-size:1.05rem;cursor:pointer;backdrop-filter:blur(4px);touch-action:manipulation;transition:transform .2s,border-color .2s}
+.sound-btn:hover{border-color:var(--pk)}.sound-btn:active{transform:scale(.92)}
+@media(max-width:380px){.fa-btns button{font-size:.62rem}}
+/* the special-gift layers sit above the flowers: let clicks pass through them except on the gifts themselves */
+#specials,#feet{pointer-events:none!important}
+#specials.interactive .sp,#specials.interactive .sp-msg,#feet.interactive .sp{pointer-events:auto}
