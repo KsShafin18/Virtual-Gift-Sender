@@ -6,6 +6,7 @@ const Specials = (() => {
       opts: [['glass', 'Round Glass'], ['feet', 'Under the Feet'], ['holder', 'Moon Holder'], ['discard', 'Throw Away']] },
     snowglobe: { name: 'Dancing Couple Snow Globe', emoji: '💃', desc: 'A romantic couple dancing in a sparkling, snowy globe.',
       opts: [['play', 'Play'], ['discard', 'Throw Away']] },
+<<<<<<< HEAD
     kidney: { msgs: ['Someone gifted you a kidney! 💝', 'A kidney, specially gifted to you. 🫀'], name: 'Kidney Gift', emoji: '🫀', desc: 'A kidney, safely kept inside a glass box. Give it a tap.',
       opts: [['message', 'Gift Message'], ['discard', 'Throw Away']] },
     heartkidney: { name: 'Heart Kidney', emoji: '💗', desc: 'A kidney with a heart of its own, glowing with love. Tap to feel it beat.',
@@ -19,18 +20,29 @@ const Specials = (() => {
   /* other modules (e.g. lovebirds.js) plug in with Specials.define(type, { name, emoji, desc, opts, art(opt), act(type, opt, el) }) */
   const IMPL = {};
   const define = (type, d) => { T[type] = d; IMPL[type] = d; };
+=======
+    kidney: { name: 'Kidney Gift', emoji: '🫀', desc: 'A kidney, safely kept inside a glass box. Give it a tap.',
+      opts: [['message', 'Gift Message'], ['discard', 'Throw Away']] }
+  };
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
   const MSG = ['Someone gifted you a kidney! 💝', 'A kidney, specially gifted to you. 🫀'];
   const has = t => Object.prototype.hasOwnProperty.call(T, t);
   const st = (a, b) => `<stop offset="${a}" stop-color="${b}"/>`;
   const rg = (id, p, ...s) => `<radialGradient id="sp-${id}" ${p}>${s.join('')}</radialGradient>`;
   const lg = (id, p, ...s) => `<linearGradient id="sp-${id}" ${p}>${s.join('')}</linearGradient>`;
   const DEFS = `<svg id="sp-defs" width="0" height="0" aria-hidden="true" focusable="false" style="position:absolute;width:0;height:0;overflow:hidden"><defs>
+<<<<<<< HEAD
     ${rg('halo', '', '<stop stop-color="#fffaf0" stop-opacity=".92"/>', '<stop offset=".34" stop-color="#e3edff" stop-opacity=".4"/>', '<stop offset="1" stop-color="#a9c2ff" stop-opacity="0"/>')}
     ${rg('moon', 'cx=".35" cy=".3" r=".9"', st(0, '#fcf9ef'), st(.5, '#e6e1d5'), st(.85, '#bbb4aa'), st(1, '#8d8893'))}
     ${rg('maria', '', '<stop stop-color="#5e5a6a" stop-opacity=".5"/>', '<stop offset=".6" stop-color="#6f6b78" stop-opacity=".28"/>', '<stop offset="1" stop-color="#7d7986" stop-opacity="0"/>')}
     ${rg('crat', '', '<stop stop-color="#5f5b57" stop-opacity=".55"/>', '<stop offset=".62" stop-color="#8d887f" stop-opacity=".22"/>', '<stop offset=".86" stop-color="#8d887f" stop-opacity="0"/>', '<stop offset=".93" stop-color="#fff" stop-opacity=".5"/>', '<stop offset="1" stop-color="#fff" stop-opacity="0"/>')}
     ${lg('term', 'x1="0" y1="0" x2="1" y2="0"', '<stop stop-color="#0a0918" stop-opacity="0"/>', '<stop offset="1" stop-color="#0a0918" stop-opacity=".84"/>')}
     ${lg('gap', 'x1="0" y1="0" x2="1" y2="0"', '<stop stop-color="#fff" stop-opacity="0"/>', '<stop offset=".5" stop-color="#fffbe8" stop-opacity=".95"/>', '<stop offset="1" stop-color="#fff" stop-opacity="0"/>')}
+=======
+    ${rg('halo', '', '<stop stop-color="#fff6c8" stop-opacity=".95"/>', '<stop offset=".35" stop-color="#ffe9a0" stop-opacity=".42"/>', '<stop offset="1" stop-color="#ffd27a" stop-opacity="0"/>')}
+    ${rg('moon', 'cx=".35" cy=".3" r=".85"', st(0, '#fffef2'), st(.55, '#f4e6b0'), st(1, '#c9ad65'))}
+    ${rg('crater', 'cx=".35" cy=".3"', '<stop stop-color="#d9c58a" stop-opacity=".1"/>', '<stop offset="1" stop-color="#a88f52" stop-opacity=".55"/>')}
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
     ${rg('sphere', 'cx=".35" cy=".3" r=".8"', '<stop offset=".5" stop-color="#2a1a40" stop-opacity="0"/>', '<stop offset="1" stop-color="#2a1a40" stop-opacity=".62"/>')}
     ${rg('glass', 'cx=".32" cy=".26" r=".85"', '<stop offset=".55" stop-color="#fff" stop-opacity=".02"/>', '<stop offset=".9" stop-color="#cfe6ff" stop-opacity=".16"/>', '<stop offset="1" stop-color="#fff" stop-opacity=".42"/>')}
     ${lg('gold', 'x1="0" y1="0" x2="1" y2="0"', st(0, '#8a5a1c'), st(.3, '#f6d78a'), st(.55, '#c99436'), st(1, '#6e4512'))}
@@ -42,12 +54,16 @@ const Specials = (() => {
     ${rg('kid', 'cx=".32" cy=".28" r=".95"', st(0, '#e0705f'), st(.35, '#b83a3a'), st(.75, '#7d1a22'), st(1, '#4d0c15'))}
     ${rg('blood', '', '<stop stop-color="#ff1a1a" stop-opacity="1"/>', '<stop offset=".55" stop-color="#c40c0c" stop-opacity=".75"/>', '<stop offset="1" stop-color="#7a0000" stop-opacity="0"/>')}
     ${lg('boxglass', 'x1="0" y1="0" x2="1" y2="1"', '<stop stop-color="#fff" stop-opacity=".34"/>', '<stop offset=".5" stop-color="#cfe6ff" stop-opacity=".07"/>', '<stop offset="1" stop-color="#fff" stop-opacity=".24"/>')}
+<<<<<<< HEAD
     ${rg('hk', 'cx=".32" cy=".26" r=".95"', st(0, '#ffb0c8'), st(.32, '#ff4f86'), st(.7, '#cf1252'), st(1, '#7a0a34'))}
     ${rg('cush', 'cx=".4" cy=".3" r=".9"', st(0, '#ff9ec4'), st(.6, '#d6307a'), st(1, '#7a0a3a'))}
+=======
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
     ${lg('slab', 'x1="0" y1="0" x2="0" y2="1"', st(0, '#3b2a44'), st(1, '#150d1b'))}
     <clipPath id="sp-globeclip"><circle cx="100" cy="98" r="79"/></clipPath><clipPath id="sp-moonclip"><circle cx="100" cy="92" r="46"/></clipPath></defs></svg>`;
   function register() {
     Object.entries(T).forEach(([k, v]) => Object.prototype.hasOwnProperty.call(Flowers.TYPES, k) ||
+<<<<<<< HEAD
       Object.defineProperty(Flowers.TYPES, k, { value: { name: v.name, emoji: v.emoji, desc: v.desc, special: true, ...(v.variantOf ? { variantOf: v.variantOf } : {}) }, enumerable: !v.variantOf, configurable: true }));
     if (!document.getElementById('sp-defs')) document.body.insertAdjacentHTML('beforeend', DEFS);
   }
@@ -90,6 +106,31 @@ const Specials = (() => {
     (figure ? '<g fill="#2a1245"><circle cx="160" cy="14" r="5"/><path d="M160 20l-12 26h24z"/><path d="M155 12q-9 2-8 12" stroke="#2a1245" stroke-width="2.4" fill="none"/><path d="M165 24l10-10" stroke="#2a1245" stroke-width="2.2"/></g><path class="tw" d="M178 6l1.8 5 5 1.8-5 1.8-1.8 5-1.8-5-5-1.8 5-1.8z" fill="#fff6c8"/>' : '') + '</svg></div>';
   /* phase thumbnails for the picker */
   const phaseThumb = ph => `<svg viewBox="0 0 60 60" aria-hidden="true"><circle cx="30" cy="30" r="29" fill="#120d32"/>${moonDisc(30, 30, 24, ph)}</svg>`;
+=======
+      Object.defineProperty(Flowers.TYPES, k, { value: { name: v.name, emoji: v.emoji, desc: v.desc, special: true }, enumerable: true, configurable: true }));
+    if (!document.getElementById('sp-defs')) document.body.insertAdjacentHTML('beforeend', DEFS);
+  }
+  /* ---------- Moon ---------- */
+  const CR = [[-.35, -.3, .2], [.28, -.45, .14], [.1, .15, .24], [-.45, .25, .13], [.5, .2, .15], [-.05, -.62, .1], [.3, .58, .11]];
+  const craters = (cx, cy, r) => CR.map(([x, y, s]) => `<ellipse cx="${cx + x * r}" cy="${cy + y * r}" rx="${s * r}" ry="${s * r * .92}" fill="url(#sp-crater)"/>`).join('');
+  const twinkle = '<path class="tw" d="M28 46l2 6 6 2-6 2-2 6-2-6-6-2 6-2z" fill="#fff6c8"/><path class="tw t2" d="M170 62l1.6 4.4 4.4 1.6-4.4 1.6-1.6 4.4-1.6-4.4-4.4-1.6 4.4-1.6z" fill="#fff6c8"/><path class="tw t3" d="M156 150l1.4 3.6 3.6 1.4-3.6 1.4-1.4 3.6-1.4-3.6-3.6-1.4 3.6-1.4z" fill="#fff6c8"/>';
+  const moonDisc = (cx, cy, r) => `<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#sp-moon)"/>${craters(cx, cy, r)}<circle cx="${cx}" cy="${cy}" r="${r}" fill="url(#sp-sphere)"/><circle class="shine" cx="${cx}" cy="${cy}" r="${r}" fill="#fff"/>`;
+  const moon = opt => {
+    if (opt === 'glass') return `<svg class="sp-svg" viewBox="0 0 200 200"><ellipse cx="100" cy="188" rx="52" ry="9" fill="#000" opacity=".3"/><path d="M66 176h68l8 14H58z" fill="url(#sp-gold)"/><ellipse cx="100" cy="176" rx="36" ry="6" fill="url(#sp-goldtop)"/>` +
+      `<circle cx="100" cy="92" r="84" fill="#1a1040" opacity=".35"/><circle class="halo" cx="100" cy="92" r="76" fill="url(#sp-halo)"/>${moonDisc(100, 92, 36)}<circle cx="100" cy="92" r="84" fill="url(#sp-glass)" stroke="#fff" stroke-opacity=".55" stroke-width="1.6"/>` +
+      `<path d="M42 62A62 62 0 0 1 86 26" stroke="#fff" stroke-opacity=".75" stroke-width="5" fill="none" stroke-linecap="round"/><path d="M150 140A62 62 0 0 1 128 160" stroke="#fff" stroke-opacity=".35" stroke-width="3" fill="none" stroke-linecap="round"/>${twinkle}</svg>`;
+    if (opt === 'holder') return `<svg class="sp-svg" viewBox="0 0 200 200"><ellipse cx="100" cy="192" rx="62" ry="8" fill="#000" opacity=".3"/><ellipse cx="100" cy="184" rx="58" ry="12" fill="url(#sp-gold)"/><ellipse cx="100" cy="181" rx="58" ry="11" fill="url(#sp-goldtop)"/>` +
+      `<rect x="95" y="146" width="10" height="36" fill="url(#sp-gold)"/><path d="M60 160A66 66 0 0 1 124 30" stroke="url(#sp-gold)" stroke-width="5" fill="none" stroke-linecap="round"/><circle class="halo" cx="100" cy="92" r="78" fill="url(#sp-halo)"/>` +
+      `<g transform="rotate(-22 100 92)"><g clip-path="url(#sp-moonclip)"><g class="rot"><rect x="40" y="40" width="190" height="104" fill="#efdca0"/>${craters(100, 92, 46)}${craters(192, 92, 46)}</g></g><circle cx="100" cy="92" r="46" fill="url(#sp-sphere)"/><circle class="shine" cx="100" cy="92" r="46" fill="#fff"/></g>` +
+      `<circle cx="124" cy="30" r="4" fill="url(#sp-goldtop)"/><circle cx="76" cy="154" r="4" fill="url(#sp-goldtop)"/>${twinkle}</svg>`;
+    if (opt === 'feet') return '';
+    return `<svg class="sp-svg" viewBox="0 0 200 200"><circle class="halo" cx="100" cy="100" r="96" fill="url(#sp-halo)"/>${moonDisc(100, 100, 54)}${twinkle}</svg>`;
+  };
+  /* the moon the flowers (or a tiny dreamer) stand on */
+  const feet = figure => `<div class="moon-feet sp" data-sp="moon" data-opt="feet" role="button" tabindex="0" aria-label="Tap the moon"><svg class="sp-svg" viewBox="0 0 320 130"><circle class="halo" cx="160" cy="210" r="190" fill="url(#sp-halo)"/>` +
+    `<circle cx="160" cy="210" r="168" fill="url(#sp-moon)"/>${craters(160, 210, 168).replace(/<ellipse/g, m => m)}<circle cx="160" cy="210" r="168" fill="url(#sp-sphere)"/><circle class="shine" cx="160" cy="210" r="168" fill="#fff"/>` +
+    (figure ? '<g fill="#2a1245"><circle cx="160" cy="14" r="5"/><path d="M160 20l-12 26h24z"/><path d="M155 12q-9 2-8 12" stroke="#2a1245" stroke-width="2.4" fill="none"/><path d="M165 24l10-10" stroke="#2a1245" stroke-width="2.2"/></g><path class="tw" d="M178 6l1.8 5 5 1.8-5 1.8-1.8 5-1.8-5-5-1.8 5-1.8z" fill="#fff6c8"/>' : '') + '</svg></div>';
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
   /* ---------- Snow globe ---------- */
   const flakes = Array.from({ length: 22 }, (_, i) => { const r = (i * 37 % 100) / 100; return `<circle class="sf" cx="${24 + (i * 53 % 152)}" cy="${20 + r * 20}" r="${(1 + (i % 3) * .7).toFixed(1)}" fill="#fff" style="animation-delay:${(-r * 6).toFixed(2)}s;animation-duration:${(4 + (i % 5) * .8).toFixed(1)}s"/>`; }).join('');
   const globe = opt => `<svg class="sp-svg${opt === 'play' ? ' playing' : ''}" viewBox="0 0 200 240"><ellipse cx="100" cy="232" rx="68" ry="7" fill="#000" opacity=".3"/>` +
@@ -113,6 +154,7 @@ const Specials = (() => {
     `<ellipse cx="8" cy="-26" rx="12" ry="22" fill="#fff" fill-opacity=".22" transform="rotate(14 8 -26)"/></g></g>` +
     `<path d="M18 70h150v118H18z" fill="url(#sp-boxglass)" stroke="#fff" stroke-opacity=".62" stroke-width="1.6"/><path d="M18 70l22-14h150l-22 14z" fill="#fff" fill-opacity=".2" stroke="#fff" stroke-opacity=".5"/><path d="M168 70l22-14v118l-22 14z" fill="#cfe6ff" fill-opacity=".12" stroke="#fff" stroke-opacity=".4"/>` +
     `<path d="M32 82l36-8M30 150l60-60" stroke="#fff" stroke-opacity=".5" stroke-width="3" stroke-linecap="round"/></svg>`;
+<<<<<<< HEAD
   /* ---------- Heart Kidney: a glossy heart-shaped kidney on a velvet cushion ---------- */
   const HK = 'M0 58C-62 22-76-26-44-48C-24-62-4-52 0-34C6-54 30-62 50-48C70-34 70-10 54 2C42 12 42 26 54 38C40 48 22 54 0 58Z';
   const heartkidney = () => `<svg class="sp-svg" viewBox="0 0 220 220"><ellipse cx="110" cy="204" rx="78" ry="9" fill="#000" opacity=".35"/>` +
@@ -129,14 +171,25 @@ const Specials = (() => {
     return `<div class="sp sp-${b}${opt === 'released' ? ' released' : ''}" data-sp="${type}" data-base="${b}" data-opt="${opt}" role="button" tabindex="0" aria-label="${T[type].name}. Tap to interact">${body}</div>`;
   };
   const variantsOf = type => base(type) === 'moon' ? PHASES.map(([k, label]) => ({ key: k === 'full' ? 'moon' : 'moon-' + k, label, thumb: phaseThumb(k) })) : null;
+=======
+  const art = (type, opt = '', demo = false) => {
+    const body = type === 'moon' ? moon(opt) : type === 'snowglobe' ? globe(demo ? 'play' : opt) : kidney();
+    return `<div class="sp sp-${type}" data-sp="${type}" data-opt="${opt}" role="button" tabindex="0" aria-label="${T[type].name}. Tap to interact">${body}</div>`;
+  };
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
   const row = types => `<div class="sp-row">${types.map(t => art(t, '', true)).join('')}</div>`;
   /* ---------- tap effects ---------- */
   function enableTouch(root, { enabled = () => true } = {}) {
     const fire = el => {
+<<<<<<< HEAD
       const t = el.dataset.base, svg = el.querySelector('svg');
       if (t === 'moon') { el.classList.add('boost'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('boost'), 1800); }
       else if (t === 'heartkidney') { el.classList.add('beat'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('beat'), 3200); }
       else if (IMPL[t]?.tap) IMPL[t].tap(el);
+=======
+      const t = el.dataset.sp, svg = el.querySelector('svg');
+      if (t === 'moon') { el.classList.add('boost'); clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('boost'), 1800); }
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
       else if (t === 'kidney') {
         el.classList.remove('bleed'); void el.offsetWidth; el.classList.add('bleed');
         clearTimeout(el._t); el._t = setTimeout(() => el.classList.remove('bleed'), 2800);
@@ -149,6 +202,10 @@ const Specials = (() => {
     root.addEventListener('click', e => { const el = pick(e); if (el) fire(el); });
     root.addEventListener('keydown', e => { if ((e.key === 'Enter' || e.key === ' ') && e.target.matches?.('.sp') && enabled()) { e.preventDefault(); fire(e.target); } });
   }
+<<<<<<< HEAD
   const act = (type, opt, el, done) => IMPL[base(type)]?.act?.(opt, el, done);
   return { T, MSG, has, base, phaseOf, variantsOf, define, register, art, row, feet, enableTouch, act, IMPL };
+=======
+  return { T, MSG, has, register, art, row, feet, enableTouch };
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
 })();

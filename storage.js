@@ -25,8 +25,12 @@ const Store = (() => {
   };
   const write = a => { try { localStorage.setItem(G, JSON.stringify(a)); } catch (e) { alert('Could not save: browser storage is full or blocked.'); } };
   const receiverItems = gift => gift.items.filter(item => item.type !== 'letter').map(item => ({ type: item.type, qty: item.qty }));
+<<<<<<< HEAD
   const MOON = ['glass', 'feet', 'holder', 'discard'];
   const EXTRA = { moon: MOON, 'moon-half': MOON, 'moon-crescent': MOON, 'moon-split': MOON, snowglobe: ['play', 'discard'], kidney: ['message', 'discard'], heartkidney: ['beat', 'message', 'discard'], lovebirds: ['released'] };
+=======
+  const EXTRA = { moon: ['glass', 'feet', 'holder', 'discard'], snowglobe: ['play', 'discard'], kidney: ['message', 'discard'] };
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
   const validExtra = x => x === undefined || (!!x && typeof x === 'object' && Object.entries(x).every(([k, v]) => Object.prototype.hasOwnProperty.call(EXTRA, k) && EXTRA[k].includes(v)));
   const validReceiver = (state, gift) => {
     const original = new Map(receiverItems(gift).map(item => [item.type, item.qty]));

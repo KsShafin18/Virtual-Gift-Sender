@@ -31,6 +31,7 @@ links still work in the browser where their gift was created; newly generated li
   Yellow, White, Black). Each variant is a normal hidden type such as `rose-yellow` or `wood-rose-pink`.
 - Script/CSS tags carry `?v=4` and `vercel.json` sends `Cache-Control: no-cache`, so a redeploy never mixes old and new files.
   Bump the number when you change a script.
+<<<<<<< HEAD
 
 ## Delivery styles, bouquet designer, flower actions
 
@@ -43,3 +44,5 @@ links still work in the browser where their gift was created; newly generated li
 - **Flower actions** (gift page): tap a flower, then Shake, Throw & Catch, Water Spray or Throw Away (with confirmation, `Dialog.confirm` in `ui.js`).
 - **Sound** (`Sfx` in `ui.js`): small synthesised chirps/knocks, off-switch remembered in `localStorage` (`vgks-sound`).
 - Remember to bump the `?v=` number on script/CSS tags when you change them.
+=======
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b

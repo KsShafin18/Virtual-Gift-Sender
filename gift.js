@@ -33,6 +33,7 @@
   const spLayer = $('#specials'), feetLayer = $('#feet'), gwrap = $('#gwrap');
   const extra = () => arrangement.extra || (arrangement.extra = {});
   const live = () => specialItems.filter(item => extra()[item.type] !== 'discard');
+<<<<<<< HEAD
   const baseOf = item => Specials.base(item.type);
   const renderSpecials = hasFlowers => {
     const on = live(), moonItem = on.find(item => baseOf(item) === 'moon'), feetOn = !!moonItem && extra()[moonItem.type] === 'feet';
@@ -40,6 +41,13 @@
     const bubble = item => { const t = Specials.T[item.type]; return t.msgs && extra()[item.type] === 'message' ? `<button class="sp-msg" type="button" data-i="0" data-t="${item.type}">${t.msgs[0]}</button>` : ''; };
     spLayer.innerHTML = row.length ? `<div class="sp-row" style="--w:${w[Math.min(row.length, 3) - 1]}%">${row.map(item => `<div class="sp-wrap" data-for="${item.type}">${Specials.art(item.type, extra()[item.type] || '')}${bubble(item)}</div>`).join('')}</div>` : '';
     feetLayer.innerHTML = feetOn ? Specials.feet(!hasFlowers, Specials.phaseOf(moonItem.type)) : '';
+=======
+  const renderSpecials = hasFlowers => {
+    const on = live(), feetOn = extra().moon === 'feet' && on.some(item => item.type === 'moon');
+    const row = on.filter(item => !(item.type === 'moon' && feetOn)), w = hasFlowers ? [100, 82, 70] : [62, 46, 46];
+    spLayer.innerHTML = row.length ? `<div class="sp-row" style="--w:${w[Math.min(row.length, 3) - 1]}%">${row.map(item => `<div class="sp-wrap" data-for="${item.type}">${Specials.art(item.type, extra()[item.type] || '')}${item.type === 'kidney' && extra().kidney === 'message' ? `<button class="sp-msg" type="button" data-i="0">${Specials.MSG[0]}</button>` : ''}</div>`).join('')}</div>` : '';
+    feetLayer.innerHTML = feetOn ? Specials.feet(!hasFlowers) : '';
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
     gwrap.classList.toggle('has-fl', hasFlowers && row.length > 0);
     gwrap.classList.toggle('on-feet', feetOn && hasFlowers);
   };
@@ -47,7 +55,11 @@
   Specials.enableTouch(feetLayer, { enabled: () => spLayer.classList.contains('interactive') });
   spLayer.addEventListener('click', e => {
     const b = e.target.closest('.sp-msg');
+<<<<<<< HEAD
     if (b) { b.dataset.i = 1 - b.dataset.i; b.textContent = Specials.T[b.dataset.t].msgs[b.dataset.i]; }
+=======
+    if (b) { b.dataset.i = 1 - b.dataset.i; b.textContent = Specials.MSG[b.dataset.i]; }
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
   });
   specialItems.forEach(item => {
     const grp = document.createElement('div'), t = Specials.T[item.type];
@@ -56,6 +68,7 @@
   });
   if (!flowerItems.length) flowerChoices.querySelectorAll('[data-container]').forEach(b => b.hidden = true);
   const syncSpecials = () => flowerChoices.querySelectorAll('[data-sp]').forEach(b => b.setAttribute('aria-pressed', String(extra()[b.dataset.sp] === b.dataset.opt)));
+<<<<<<< HEAD
   flowerChoices.querySelectorAll('[data-sp]').forEach(button => button.addEventListener('click', async () => {
     const type = button.dataset.sp, opt = button.dataset.opt, t = Specials.T[type];
     const close = () => { flowerChoices.hidden = true; optionsToggle.setAttribute('aria-expanded', 'false'); optionsToggle.focus({ preventScroll: true }); };
@@ -70,6 +83,13 @@
     if (opt === 'discard' && !(await Dialog.confirm({ title: 'Throw it away?', message: `Are you sure you want to throw away this ${t.name.toLowerCase()}? Once thrown away, it cannot be recovered.`, yes: 'Yes, Throw Away', no: 'Cancel' }))) return;
     extra()[type] = opt; syncSpecials(); Store.saveReceiver(g, arrangement); close();
     const done = () => { renderArrangement(); flowerStatus.textContent = opt === 'discard' ? `${t.name} thrown away.` : ''; };
+=======
+  flowerChoices.querySelectorAll('[data-sp]').forEach(button => button.addEventListener('click', () => {
+    const type = button.dataset.sp, opt = button.dataset.opt;
+    extra()[type] = opt; syncSpecials(); Store.saveReceiver(g, arrangement);
+    flowerChoices.hidden = true; optionsToggle.setAttribute('aria-expanded', 'false'); optionsToggle.focus();
+    const done = () => { renderArrangement(); flowerStatus.textContent = opt === 'discard' ? `${Specials.T[type].name} thrown away.` : ''; };
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
     const target = spLayer.querySelector(`[data-for="${type}"]`);
     if (opt === 'discard' && target) { target.classList.add('discarding'); setTimeout(done, 650); } else done();
   }));
@@ -79,7 +99,11 @@
   const renderArrangement = () => {
     const fl = arrangement.items.filter(item => !Flowers.TYPES[item.type].special), total = fl.reduce((sum, item) => sum + item.qty, 0);
     flowerArt.innerHTML = total && arrangement.container !== 'discard'
+<<<<<<< HEAD
       ? Flowers.scene(fl, false, arrangement.container || '', g.bouquet) : '';
+=======
+      ? Flowers.scene(fl, false, arrangement.container || '') : '';
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
     renderSpecials(total > 0);
     const place = { bottle: 'bottle', pot: 'Plant Flower', vase: 'vase' }[arrangement.container];
     flowerStatus.textContent = !flowerItems.length ? '' : total
