@@ -68,7 +68,6 @@ body.dim #fx{opacity:.4}
 .opt-group{grid-column:1/-1;display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:7px}
 .opt-title{grid-column:1/-1;margin-top:4px;font:600 .8rem Poppins,sans-serif;color:var(--lp);text-align:left}
 .flower-choice[hidden]{display:none}
-<<<<<<< HEAD
 
 /* ===== Delivery styles ===== */
 .stage.dl-hold h1,.stage.dl-hold #go{visibility:hidden}
@@ -134,5 +133,3 @@ body.dim #fx{opacity:.4}
 /* the special-gift layers sit above the flowers: let clicks pass through them except on the gifts themselves */
 #specials,#feet{pointer-events:none!important}
 #specials.interactive .sp,#specials.interactive .sp-msg,#feet.interactive .sp{pointer-events:auto}
-=======
->>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b

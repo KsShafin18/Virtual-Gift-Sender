@@ -63,11 +63,7 @@ const Flowers = (() => {
     }
   };
   /* Wooden roses: the rose artwork recoloured to carved wood (or lacquered in a colour) with a grain texture on top. */
-<<<<<<< HEAD
   const WOOD_FILTER = '<defs><filter id="woodGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.42" numOctaves="1" seed="7" result="n"/>' +
-=======
-  const WOOD_FILTER = '<defs><filter id="woodGrain" x="0" y="0" width="100%" height="100%"><feTurbulence type="fractalNoise" baseFrequency="0.012 0.42" numOctaves="2" seed="7" result="n"/>' +
->>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
     '<feColorMatrix in="n" type="matrix" values="0 0 0 0 .22  0 0 0 0 .11  0 0 0 0 .04  1.25 0 0 0 -.42" result="g"/><feComposite in="g" in2="SourceGraphic" operator="in" result="gr"/>' +
     '<feMerge><feMergeNode in="SourceGraphic"/><feMergeNode in="gr"/></feMerge></filter></defs>';
   const lacquer = (h, s, l) => [h, s, l];
@@ -256,11 +252,7 @@ const Flowers = (() => {
      Layers (bottom to top): back SVG (greenery, stems, vessel back) -> flower heads (real HTML elements, so they are
      individually touchable and GPU-animated) -> front SVG (wrapping paper / vessel front).
      Nothing is capped or clipped: every flower gets its own spot, and the view is an overflow-visible HTML box. */
-<<<<<<< HEAD
   function scene(items, focus = false, container = '', bqOpts = null, still = false) {
-=======
-  function scene(items, focus = false, container = '') {
->>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
     const L = items.filter(i => TYPES[i.type] && !TYPES[i.type].special && i.type !== 'letter' && i.qty > 0);
     if (!L.length) return '';
     const id = ++sceneId, rand = rng(7 + id * 13 % 97);
