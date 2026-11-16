@@ -174,6 +174,7 @@ textarea{resize:vertical;font-family:'Hind Siliguri',Poppins,sans-serif}
 @keyframes sp-drip{0%{opacity:0;transform:translateY(0)}20%{opacity:1}100%{opacity:0;transform:translateY(115px)}}
 @keyframes sp-beat{50%{transform:scale(1.05)}}
 @keyframes sp-msg{from{opacity:0;transform:translateX(-50%) translateY(8px) scale(.8)}}
+<<<<<<< HEAD
 
 /* ===== Confirmation dialog ===== */
 .confirm-ov{animation:cf-in .22s ease both}.confirm-ov.out{animation:cf-out .22s ease both}
@@ -307,3 +308,5 @@ textarea{resize:vertical;font-family:'Hind Siliguri',Poppins,sans-serif}
 .sw.ph svg{display:block;width:100%;height:100%}
 .sw.ph[aria-pressed=true]{transform:scale(1.14)}
 @media(max-width:420px){.bq-row>span{flex-basis:100%}}
+=======
+>>>>>>> 0abc0d4197b2e1d270646db3fe61e81e9c63f60b
